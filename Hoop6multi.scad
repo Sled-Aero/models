@@ -1,13 +1,13 @@
 thick = 5;
 
-magnets = 10;
+magnets = 12;
 magnet_h = 12.5;
 magnet_r = 9.5;
-magnet_gap = 46;
+magnet_gap = 52.5;
 radius = magnet_gap; // https://en.wikipedia.org/wiki/Hexagon
 height = magnet_h + 4;
 disc_h = 2;
-span = 28;
+span = 27;
 sleeve = 9;
 gap = 3;
 
@@ -17,12 +17,12 @@ echo(radius * 2);
 echo(height);
 
 //difference() {
-    translate([0,0,0]) {         
+    translate([0,0,0]) {
         // struts
         rotate([0,90,90]) 
             for (i = [1 : magnets])
             {
-                rotate((i-7) * 360/magnets, [1, 0, 0])
+                rotate(i * 360/magnets + 15, [1, 0, 0])
                 translate([0, radius-thick/2, disc_h/2])
                 rotate([180,0,0]) {
                     difference() {
@@ -46,7 +46,7 @@ echo(height);
                 }
             }
         rotate([0,90,0]) 
-            for (i = [1 : magnets])
+            for (i = [1 : magnets] )
             {
                 rotate(i * 360/magnets, [1, 0, 0])
                 translate([8.5, radius-3, -span/2])
@@ -56,14 +56,14 @@ echo(height);
             }
     }
     
-    // mask  
+    // mask   
     rotate([0,90,90]) 
         for (i = [1 : magnets-1])
         {
-            rotate((i-6) * 360/magnets, [1, 0, 0])
-            translate([0, radius-thick/2, 13])
+            rotate((i-7) * 360/magnets, [1, 0, 0])
+            translate([0, radius-thick/2, 12])
                 rotate([180,0,0]) {
-                    cylinder(h=26, r1=12, r2=12);
+                    cylinder(h=24, r1=12, r2=12);
                 }
         }
             
@@ -117,8 +117,23 @@ echo(height);
             }    
     }
 
-    // magnets            
-    /* translate([0,0,0]) {
+    // magnets   
+   /*
+    translate([0,0,0]) {
+        /* rotate([0,90,90]) 
+            for (i = [0 : (magnets-1)])
+            {
+                rotate(i * 360 / magnets, [1, 0, 0])
+                translate([-magnet_h/2, radius-2, 0])
+                rotate([90,0,90]) {
+                    cylinder(h=magnet_h, r1=magnet_r, r2=magnet_r);
+                    
+                    // hole
+                    translate([0,0,-10])
+                        cylinder(h=30, r1=1, r2=1);
+                }
+            } */
+         
         rotate([0,90,0]) 
             for (i = [0 : (magnets-1)])
             {
