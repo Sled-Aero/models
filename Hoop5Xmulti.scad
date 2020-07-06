@@ -8,8 +8,8 @@ radius = magnet_gap; // https://en.wikipedia.org/wiki/Hexagon
 height = magnet_h + 4;
 disc_h = 2;
 span = 28;
-sleeve = 9;
-gap = 3;
+sleeve = 18;
+gap = 12;
 holes = 12;
 
 $fs = 0.01;
@@ -24,10 +24,10 @@ difference() {
             for (i = [1 : magnets])
             {
                 rotate((i-7) * 360/magnets, [1, 0, 0])
-                    translate([0, radius-thick/2, disc_h/2])
+                    translate([0, radius, disc_h/2])
                         rotate([180,0,0]) {
                             difference() {
-                                cylinder(h=disc_h, r1=11, r2=11);
+                                cylinder(h=disc_h, r1=magnet_r+1.5, r2=magnet_r+1.5);
                                 
                                 // centre hole
                                 translate([0,0,-10])
@@ -51,9 +51,20 @@ difference() {
                             
                         }
             } 
+           
+        // rings 
+         /*   
+        difference() {
+            cylinder(h=3, r=radius+magnet_r+1.5, center=true);
+            cylinder(h=3, r=radius+magnet_r, center=true);
+        }
+        difference() {
+            cylinder(h=3, r=radius-magnet_r, center=true);
+            cylinder(h=3, r=radius-magnet_r-1.5, center=true);
+        }    */  
 
         // spans
-        rotate([0,90,0]) 
+        rotate([0,90,0]) {
             for (i = [1 : magnets])
             {
                 rotate(i * 360/magnets, [1, 0, 0])
@@ -70,24 +81,24 @@ difference() {
                                 }
                                 
                             // gap
-                            translate([0, 0, span/2 - sleeve/6])    
+                            translate([0, 0, span/2 - gap/2])    
                                 rotate([0,0,90]) {
                                     difference() {
-                                        cylinder(h=sleeve/3, r1=3, r2=3);
-                                        
-                                        if (i > 7 || i == 1)
-                                            cylinder(h=sleeve/3, r1=0.3, r2=0.3);
+                                        cylinder(h=gap, r1=3, r2=3);
+                                                                               
+                                        //if (i > 7 || i == 1)
+                                        //    cylinder(h=gap, r1=0.3, r2=0.3);
                                     }
                                 }      
                         }
                         
                         // nubbins
-                        translate([0, 0, span/2-3])
+                        translate([0, 0, span/2 - gap/2 - 1.5])
                             rotate_extrude() {
                               translate([1.1,0]) 
                                  circle(0.25);
                             } 
-                        translate([0, 0, span/2+3])
+                        translate([0, 0, span/2 + gap/2 + 1.5])
                             rotate_extrude() {
                               translate([1.1,0]) 
                                  circle(0.25);
@@ -95,7 +106,6 @@ difference() {
                     }   
             }
             
-        rotate([0,90,0]) 
             for (i = [1 : magnets])
             {
                 rotate(i * 360/magnets, [1, 0, 0])
@@ -112,32 +122,116 @@ difference() {
                                 }
                              
                             // gap
-                            translate([0, 0, span/2 - sleeve/6])    
+                            translate([0, 0, span/2 - gap/2])    
                                 rotate([0,0,90]) {
                                     difference() {
-                                        cylinder(h=sleeve/3, r1=3, r2=3);
+                                        cylinder(h=gap, r1=3, r2=3);
                                         
-                                        if (i > 7 || i == 1)
-                                            cylinder(h=sleeve/3, r1=0.3, r2=0.3);
+                                        //if (i > 7 || i == 1)
+                                        //    cylinder(h=gap, r1=0.3, r2=0.3);
                                     }
                                 }    
                         }
                         
                         // nubbins
-                        translate([0, 0, span/2-3])
+                        translate([0, 0, span/2 - gap/2 - 1.5])
                             rotate_extrude() {
                               translate([1.1,0]) 
                                  circle(0.25);
                             } 
-                        translate([0, 0, span/2+3])
+                        translate([0, 0, span/2 + gap/2 + 1.5])
                             rotate_extrude() {
                               translate([1.1,0]) 
                                  circle(0.25);
                             }     
                     }   
             }    
+            
+            // inner
+            for (i = [1 : magnets])
+            {
+                rotate(i * 360/magnets, [1, 0, 0])
+                translate([0, radius-12.5, 3-span/2])
+                    rotate([0,0,90]) {
+                        difference() {
+                            cylinder(h=span-6, r1=2, r2=2);
+                            
+                            // sleeve
+                            translate([0, 0, span/2 - sleeve/2 -3])
+                                difference() {
+                                    cylinder(h=sleeve, r1=2.5, r2=2.5);
+                                    cylinder(h=sleeve, r1=1.25, r2=1.25);
+                                }
+                             
+                            // gap
+                            translate([0, 0, span/2 - gap/2 - 3])    
+                                rotate([0,0,90]) {
+                                    difference() {
+                                        cylinder(h=gap, r1=3, r2=3);
+                                        
+                                        //if (i > 7 || i == 1)
+                                        //    cylinder(h=gap, r1=0.3, r2=0.3);
+                                    }
+                                }    
+                        }
+                        
+                        // nubbins
+                        translate([0, 0, span/2 - gap/2 - 1.5 -3])
+                            rotate_extrude() {
+                              translate([1.1,0]) 
+                                 circle(0.25);
+                            } 
+                        translate([0, 0, span/2 + gap/2 + 1.5 -3])
+                            rotate_extrude() {
+                              translate([1.1,0]) 
+                                 circle(0.25);
+                            }     
+                    }   
+            }
+            
+            // outer
+            for (i = [1 : magnets])
+            {
+                rotate(i * 360/magnets, [1, 0, 0])
+                translate([0, radius+3.7, -span/2-3])
+                    rotate([0,0,90]) {
+                        difference() {
+                            cylinder(h=span + 6, r1=2, r2=2);
+                            
+                            // sleeve
+                            translate([0, 0, span/2 - sleeve/2+3])
+                                difference() {
+                                    cylinder(h=sleeve, r1=2.5, r2=2.5);
+                                    cylinder(h=sleeve, r1=1.25, r2=1.25);
+                                }
+                             
+                            // gap
+                            translate([0, 0, span/2 - gap/2 + 3])    
+                                rotate([0,0,90]) {
+                                    difference() {
+                                        cylinder(h=gap, r1=3, r2=3);
+                                        
+                                        //if (i > 7 || i == 1)
+                                        //    cylinder(h=gap, r1=0.3, r2=0.3);
+                                    }
+                                }    
+                        }
+                        
+                        // nubbins
+                        translate([0, 0, span/2 - gap/2 - 1.5 + 3])
+                            rotate_extrude() {
+                              translate([1.1,0]) 
+                                 circle(0.25);
+                            } 
+                        translate([0, 0, span/2 + gap/2 + 1.5 +3])
+                            rotate_extrude() {
+                              translate([1.1,0]) 
+                                 circle(0.25);
+                            }     
+                    }   
+            }
+        } 
     }
-    
     
     // mask  
     /*
@@ -151,8 +245,9 @@ difference() {
                 }
         } */
 
-    // magnets            
-    /* translate([0,0,0]) {
+    // magnets   
+/*    
+    translate([0,0,0]) {
         rotate([0,90,0]) 
             for (i = [0 : (magnets-1)])
             {
@@ -179,7 +274,6 @@ difference() {
                     translate([0,0,-10])
                         cylinder(h=30, r1=1, r2=1);
                 }
-            }        
-            
+            }            
     } */
 }
