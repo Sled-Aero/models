@@ -19,7 +19,7 @@ difference() {
     // ring
     rotate_extrude() {
       translate([radius-magnet_r/2,0]) 
-         circle(2);
+         circle(2.5);
     } 
 
     // holes
