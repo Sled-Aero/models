@@ -39,9 +39,9 @@ module arm() {
         for (i = [0 : 1])
             for (j = [0 : 1]) {
                 hull() {
-                    translate([i * 12 - 6, j * 12 - 6, 0])
+                    translate([i*12 - 6, j*12 - 6, 0])
                         circle(1);
-                    translate([i * 13 - 6.5, j * 13 - 6.5, 0])
+                    translate([i*13 - 6.5, j*13 - 6.5, 0])
                         circle(1);
                 }
             }
@@ -51,19 +51,39 @@ module arm() {
 }
 
 
-wing_l_1=160;
-wing_w_1=70;  
+wing_l=160;
+wing_w=70;
     
-module wing(flip) {
+module wing(flip, height) {
     mirror([flip,0])
-    rotate([20,-10,-4]) {
-        linear_extrude(height=1, twist=0, scale=1)
-            polygon([[-wing_w_1,wing_l_1],[0,wing_l_1],[0,0],[-10,0],[-10,30],[-wing_w_1,70]]);
-        translate([-wing_w_1,70,0])
-            rotate([0,-10,0])
-                linear_extrude(height=1, twist=0, scale=1)
-                    polygon([[-wing_w_1,90],[0,90],[0,0],[20-wing_w_1,40]]);
-    }
+        translate([0,0,-0.5]) { 
+            difference() {
+            union() {
+                linear_extrude(height=height, twist=0, scale=1)
+                    polygon([[-wing_w,wing_l],[0,wing_l],[0,30],[-wing_w,70]]);
+                translate([0.2-wing_w,70,0])
+                    rotate([0,-10,0])
+                        linear_extrude(height=height, twist=0, scale=1)
+                            polygon([[-wing_w,90],[0,90],[0,0],[20-wing_w,40]]);
+                }
+
+                // hinge
+                translate([0,141,0]) {
+                    cylinder(4,4,4);
+                }
+                
+                // mounting hole
+                translate([-34,141,-10]) {
+                    cylinder(20,0.75,0.75);
+                }
+                
+                // mounting hole
+                rotate([0,-10,0])
+                    translate([-105,141,0]) {
+                        cylinder(20,0.75,0.75);
+                    }
+            }
+        }
 }   
 
 
@@ -89,41 +109,49 @@ module engine() {
 floor_w=25;
 floor_l=75;
 
-linear_extrude(height=3, twist=0, scale=1)
-    fillet(r=10) rounding(r=3.5) union() {
-        shell(d=-10)
-            union() {
-                translate([56,120,0]) {
-                    rotate([0,0,150])
-                        spoke();
-                }
-                translate([-56,120,0]) {
-                    rotate([0,0,-150])
-                        spoke();
-                }
-                translate([90,-90,0]) {
-                    rotate([0,0,90])
-                        spoke();
-                }
-                translate([-90,-90,0]) {
-                    rotate([0,0,-90])
-                        spoke();
-                }
+difference() {
+    linear_extrude(height=3, twist=0, scale=1) {
+        fillet(r=10) rounding(r=3.5) 
+        union() {
+            shell(d=-10)
+                union() {
+                    translate([56,120,0]) {
+                        rotate([0,0,150])
+                            spoke();
+                    }
+                    translate([-56,120,0]) {
+                        rotate([0,0,-150])
+                            spoke();
+                    }
+                    translate([90,-90,0]) {
+                        rotate([0,0,90])
+                            spoke();
+                    }
+                    translate([-90,-90,0]) {
+                        rotate([0,0,-90])
+                            spoke();
+                    }
 
-                // floor
-                translate([0,-27.5])
-                    polygon([[-floor_w,floor_l],[floor_w,floor_l],[floor_w,-floor_l],[-floor_w,-floor_l]]);
+                    // floor
+                    translate([0,-27.5])
+                        polygon([[-floor_w,floor_l],[floor_w,floor_l],[floor_w,-floor_l],[-floor_w,-floor_l]]);
+                }
+                
+                // bars
+                translate([0,-5])
+                    polygon([[-floor_w,10],[floor_w,10],[floor_w,0],[-floor_w,0]]);
+                translate([0,-60])
+                    polygon([[-floor_w,10],[floor_w,10],[floor_w,0],[-floor_w,0]]);
+                
+                // supports
+                translate([18,-85])
+                    polygon([[0,0],[0,20],[15,0]]);
+                translate([-18,-85])
+                    polygon([[0,0],[0,20],[-15,0]]);
             }
             
-            // bars
-            translate([0,-5])
-                polygon([[-floor_w,10],[floor_w,10],[floor_w,0],[-floor_w,0]]);
-            translate([0,-60])
-                polygon([[-floor_w,10],[floor_w,10],[floor_w,0],[-floor_w,0]]);
-        }
     
-// arms    
-linear_extrude(height=3, twist=0, scale=1) {
+        // arms    
         translate([56,120,0]) {
             rotate([0,0,150])
                 arm();
@@ -141,14 +169,132 @@ linear_extrude(height=3, twist=0, scale=1) {
                 arm();
         }
     }
-    
-// wings    
-translate([-20,-90,0])
-    wing(0);
-translate([20,-90,0])
-    wing(1);
 
-// engines
+    // front holes        
+    translate([21,60,-2])
+        rotate([20,0,0])
+            linear_extrude(height=56) 
+                circle(1); 
+    translate([-21,60,-2])
+        rotate([20,0,0])
+            linear_extrude(height=56) 
+                circle(1);         
+}
+    
+// wing supports   
+translate([-21,0,0]) {
+    // front vertical pole
+    difference() {
+        translate([0,60,-1]) {
+            rotate([20,0,0])
+                linear_extrude(height=55) 
+                    difference() {
+                        circle(3); 
+                        circle(1); 
+                    } 
+        }
+        translate([0,60,-3])            
+            cylinder(5,5,5);            
+    }
+    
+    // 20 degrees pole
+    translate([0,-90,0])
+        rotate([290,-11,-4]) {
+            linear_extrude(height=160) 
+                circle(2); 
+    }
+}
+translate([21,0,-1]) {
+    // front vertical pole
+    difference() {
+        translate([0,60,0]) {
+            rotate([20,0,0])
+                linear_extrude(height=55) 
+                    difference() {
+                        circle(3); 
+                        circle(1); 
+                    }
+        }
+        translate([0,60,-3])            
+            cylinder(5,5,5);            
+    }            
+                
+    // 20 degrees pole
+    translate([0,-90,0])
+        rotate([290,11,4]) {
+            linear_extrude(height=160) 
+                circle(2);                 
+    }
+}
+
+// wings
+translate([-21,-90,0]) {    
+    rotate([20,-11,-4]) {    
+        wing(0,1);
+    }
+}
+translate([21,-90,0]) {
+    rotate([20,11,4]) {    
+        wing(1,1);
+    }
+}
+
+// wing cross poles
+difference() {
+    translate([0,0,20]) {
+        rotate([0,90,0]) {
+            // top
+            translate([-20,45.08,-70])
+                linear_extrude(height=140) 
+                    circle(2);
+
+            // bottom
+            translate([-1,52,-135])
+                linear_extrude(height=270) 
+                    circle();
+        }
+    }
+   
+    translate([-21,-90,0]) {    
+        rotate([20,-11,-4]) {    
+            wing(0,10);
+            
+            translate([0,0,-0.5]) { 
+                // mounting hole
+                translate([-34,141,-10]) {
+                    cylinder(20,0.75,0.75);
+                }
+                
+                // mounting hole
+                rotate([0,-10,0])
+                    translate([-105,141,0]) {
+                        cylinder(20,0.75,0.75);
+                    }
+            }
+        }
+    }
+    translate([21,-90,0]) {
+        rotate([20,11,4]) {    
+            wing(1,10);
+            
+            translate([0,0,-0.5]) { 
+                // mounting hole
+                translate([34,141,-10]) {
+                    cylinder(20,0.75,0.75);
+                }
+                
+                // mounting hole
+                rotate([0,10,0])
+                    translate([105,141,0]) {
+                        cylinder(20,0.75,0.75);
+                    }
+            }
+        }
+    }
+}
+
+// engines 
+/*
 translate([56,120,0]) {
     engine();
 }
@@ -160,14 +306,14 @@ translate([90,-90,0]) {
 }
 translate([-90,-90,0]) {
     engine();
-}
+}*/
 
 // battery
 battery_w=35;
 battery_l=105;
 battery_h=27;
 
-translate([-battery_w/2,-60,4])
+translate([-battery_w/2,-95,4])
     cube([battery_w,battery_l,battery_h]);
 
  
