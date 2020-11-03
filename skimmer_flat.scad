@@ -78,10 +78,11 @@ module wing(flip, height) {
                 }
                 
                 // mounting hole
+                /*
                 rotate([0,-10,0])
                     translate([-105,141,0]) {
                         cylinder(20,0.75,0.75);
-                    }
+                    }*/
             }
         }
 }   
@@ -300,9 +301,15 @@ difference() {
             }
 
             // bottom
-            translate([-1,52,-135])
-                linear_extrude(height=270) 
-                    circle(2);
+            rotate([-7,15,0])
+                translate([-28,20,35])
+                    linear_extrude(height=100) 
+                        circle(2); 
+            
+            rotate([7,-15,0])
+                translate([-28,20,-135])
+                    linear_extrude(height=100) 
+                        circle(2); 
         }
     }
    
@@ -382,7 +389,7 @@ linear_extrude(height=1.5, twist=0, scale=1) {
     }
 }
 
-/*
+
 // engines 
 translate([56,120,0]) {
     engine();
@@ -396,9 +403,9 @@ translate([90,-90,0]) {
 translate([-90,-90,0]) {
     engine();
 }
-*/
 
-/*
+
+
 // battery
 battery_w=35;
 battery_l=105;
@@ -406,5 +413,5 @@ battery_h=27;
 
 translate([-battery_w/2,-95,4])
     cube([battery_w,battery_l,battery_h]);
-*/
+
  
