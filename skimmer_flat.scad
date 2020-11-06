@@ -1,4 +1,6 @@
 use <utils/morphology.scad> // https://github.com/openscad/scad-utils
+use <lib/ShortCuts.scad>
+use <lib/Naca4.scad>
 
 /*
  motor: https://www.geekbuying.com/item/Flywoo-NIN-1404-3750KV-2-4S-Brushless-Motor-For-FPV-Racing-RC-Drone-418014.html
@@ -8,7 +10,7 @@ use <utils/morphology.scad> // https://github.com/openscad/scad-utils
 
 $fs=0.01;
 $fa=3;
-$fn=64;
+$fn=100;
 
 
 arm_l=90;
@@ -59,6 +61,20 @@ module wing(flip, height) {
         translate([0,0,-0.5]) { 
             difference() {
             union() {
+                // drop 
+                translate([105,165,-35])
+                    scale([0.6, 0.6, 0.6])
+                        rotate([0,30,0])
+                            rotate([0,90,270])
+                                scale([0.4, 0.8])
+                                    rotate_extrude()
+                                        rotate([0, 0, 90])
+                                            difference() {
+                                                polygon(points = airfoil_data(30)); 
+                                                square(100, 100); 
+                                            }
+                
+                // wing                        
                 linear_extrude(height=height, twist=0, scale=1)
                     polygon([[-wing_w,wing_l],[0,wing_l],[0,30],[-wing_w,70]]);
                 translate([0.2-wing_w,70,0])
@@ -71,18 +87,6 @@ module wing(flip, height) {
                 translate([0,141,0]) {
                     cylinder(4,4,4);
                 }
-                
-                // mounting hole
-                translate([-34,141,-10]) {
-                    cylinder(20,0.75,0.75);
-                }
-                
-                // mounting hole
-                /*
-                rotate([0,-10,0])
-                    translate([-105,141,0]) {
-                        cylinder(20,0.75,0.75);
-                    }*/
             }
         }
 }   
@@ -139,9 +143,9 @@ difference() {
                 }
                 
                 // bars
-                translate([0,-5])
+                translate([0,7])
                     polygon([[-floor_w,10],[floor_w,10],[floor_w,0],[-floor_w,0]]);
-                translate([0,-55])
+                translate([0,-44])
                     polygon([[-floor_w,10],[floor_w,10],[floor_w,0],[-floor_w,0]]);
                 translate([0,-95])
                     polygon([[-floor_w,10],[floor_w,10],[floor_w,0],[-floor_w,0]]);
@@ -183,22 +187,74 @@ difference() {
             linear_extrude(height=56) 
                 circle(1);     
 
-    // 20 degrees pole holes
     linear_extrude(height=3) {
+        // 20 degrees pole holes
         hull() {
             translate([21,-77.8])
-                circle(2);
-            translate([19,-90.7])
-                square(4);
+                circle(2.5);
+            translate([18.5,-86])
+                square(5);
         }  
+        translate([19.5,-91])
+            square([3,6]);
+        
         hull() {
             translate([-21,-77.8])
-                circle(2);
-            translate([-23,-90.7])
-                square(4);
-        }     
+                circle(2.5);
+            translate([-23.5,-85])
+                square(5);
+        }    
+        translate([-22.5,-91])
+            square([3,6]); 
+        
+        // back holes
+        translate([21,-95])
+           circle(1.5);    
+        translate([-21,-95])
+           circle(1.5);
+        
+        // mounting holes
+        translate([15.5,13])
+           circle(1);    
+        translate([-15.5,13])
+           circle(1);
+        translate([15.5,44])
+           circle(1);    
+        translate([-15.5,44])
+           circle(1);
+        translate([15.5,-39])
+           circle(1);    
+        translate([-15.5,-39])
+           circle(1);
     }
 }
+
+// pole plugs
+translate([-23.5,-92,-1]) {   
+    hull() {      
+        linear_extrude(height=5) 
+            square([5,7]); 
+        translate([2.5,6,4.4])
+            rotate([0,90,90])
+                cylinder(1,2.5,2.5);
+    }
+    translate([-1,0,4])
+        linear_extrude(height=1) 
+            square([7,7]); 
+}
+translate([18.5,-92,-1]) {   
+    hull() {      
+        linear_extrude(height=5) 
+            square([5,7]); 
+        translate([2.5,6,4.4])
+            rotate([0,90,90])
+                cylinder(1,2.5,2.5);
+    }
+    translate([-1,0,4])
+        linear_extrude(height=1) 
+            square([7,7]); 
+}
+
     
 // wing supports   
 translate([-21,0,0]) {
@@ -206,7 +262,7 @@ translate([-21,0,0]) {
     difference() {
         translate([0,60,0]) {
             rotate([20,0,0])
-                linear_extrude(height=55) 
+                linear_extrude(height=56.5) 
                     difference() {
                         circle(3); 
                         circle(1); 
@@ -217,16 +273,16 @@ translate([-21,0,0]) {
     }
     
     // 20 degrees pole
-    translate([0,-90,0])
+    translate([0,-90,1.5])
         rotate([290,-11,-4]) {
             linear_extrude(height=160) 
-                circle(2);
+                circle(1.5); 
     }
     
     // back vertical pole
-    translate([0,-95,0])
+    translate([0,-95,3])
         rotate([0,0,0]) 
-            linear_extrude(height=43) 
+            linear_extrude(height=35.5) 
                 difference() {
                     circle(3); 
                     circle(1); 
@@ -237,7 +293,7 @@ translate([21,0,0]) {
     difference() {
         translate([0,60,0]) {
             rotate([20,0,0])
-                linear_extrude(height=55) 
+                linear_extrude(height=56.5) 
                     difference() {
                         circle(3); 
                         circle(1); 
@@ -248,16 +304,16 @@ translate([21,0,0]) {
     }            
                 
     // 20 degrees pole
-    translate([0,-90,0])
+    translate([0,-90,1.5])
         rotate([290,11,4]) {
             linear_extrude(height=160) 
-                circle(2);                 
+                circle(1.5);                 
     }
     
     // back vertical pole
-    translate([0,-95,0])
+    translate([0,-95,3])
         rotate([0,0,0]) 
-            linear_extrude(height=43) 
+            linear_extrude(height=35.5) 
                 difference() {
                     circle(3); 
                     circle(1); 
@@ -265,87 +321,40 @@ translate([21,0,0]) {
 }
 
 // wings
-translate([-21,-90,0]) {    
+translate([-21,-90,1.5]) {    
     rotate([20,-11,-4]) {    
         wing(0,1);
     }
 }
-translate([21,-90,0]) {
+translate([21,-90,1.5]) {
     rotate([20,11,4]) {    
         wing(1,1);
     }
 }
 
-// wing cross poles
-difference() {
-    translate([0,0,20]) {
-        rotate([0,90,0]) {
-            // top
-            translate([-20,45.08,-70]) {
-                difference() {
-                    union() {
-                        linear_extrude(height=140) 
-                            circle(2);
-                        translate([0,0,52])
-                            linear_extrude(height=36) 
-                                circle(3);
-                    }
-                    // holes
-                    rotate([0,90,0]) {
-                        translate([-80,0,-5])
-                            cylinder(10,1,1);
-                        translate([-60,0,-5])
-                            cylinder(10,1,1);
-                    }
+// wing cross pole
+translate([0,0,20]) {
+    rotate([0,90,0]) {
+        // top
+        translate([-15.5,47.8,-94]) {
+            difference() {
+                union() {
+                    // pole
+                    linear_extrude(height=188) 
+                        circle(1.5);
+                    
+                    // padding tube
+                    translate([0,0,76])
+                        linear_extrude(height=36) 
+                            circle(3);
                 }
-            }
-
-            // bottom
-            rotate([-7,15,0])
-                translate([-28,20,35])
-                    linear_extrude(height=100) 
-                        circle(2); 
-            
-            rotate([7,-15,0])
-                translate([-28,20,-135])
-                    linear_extrude(height=100) 
-                        circle(2); 
-        }
-    }
-   
-    translate([-21,-90,0]) {    
-        rotate([20,-11,-4]) {    
-            wing(0,10);
-            
-            translate([0,0,-0.5]) { 
-                // mounting hole
-                translate([-34,141,-10]) {
-                    cylinder(20,0.75,0.75);
+                // holes
+                rotate([0,90,0]) {
+                    translate([-107,0,-5])
+                        cylinder(10,1,1);
+                    translate([-81,0,-5])
+                        cylinder(10,1,1);
                 }
-                
-                // mounting hole
-                rotate([0,-10,0])
-                    translate([-105,141,0]) {
-                        cylinder(20,0.75,0.75);
-                    }
-            }
-        }
-    }
-    translate([21,-90,0]) {
-        rotate([20,11,4]) {    
-            wing(1,10);
-            
-            translate([0,0,-0.5]) { 
-                // mounting hole
-                translate([34,141,-10]) {
-                    cylinder(20,0.75,0.75);
-                }
-                
-                // mounting hole
-                rotate([0,10,0])
-                    translate([105,141,0]) {
-                        cylinder(20,0.75,0.75);
-                    }
             }
         }
     }
@@ -355,7 +364,7 @@ difference() {
 top_w=18;
 top_l=78;
 
-translate([0,-25,43])
+translate([0,-25,38.5])
 linear_extrude(height=1.5, twist=0, scale=1) {
     difference() {
         fillet(r=5) rounding(r=3.5) 
@@ -375,10 +384,11 @@ linear_extrude(height=1.5, twist=0, scale=1) {
                 translate([-10,-65])
                    square([20, 35]);
             }
+
         // front holes    
-        translate([10,70])
+        translate([13,73])
            circle(1.5);    
-        translate([-10,70])
+        translate([-13,73])
            circle(1.5);    
             
         // back holes    
@@ -386,10 +396,20 @@ linear_extrude(height=1.5, twist=0, scale=1) {
            circle(1.5);    
         translate([-21,-70])
            circle(1.5);
+            
+        // mounting holes
+        translate([13,-25])
+           circle(1);    
+        translate([-13,-25])
+           circle(1);
+        translate([13,20])
+           circle(1);    
+        translate([-13,20])
+           circle(1);    
     }
 }
 
-
+/*
 // engines 
 translate([56,120,0]) {
     engine();
@@ -404,14 +424,11 @@ translate([-90,-90,0]) {
     engine();
 }
 
-
-
 // battery
 battery_w=35;
 battery_l=105;
 battery_h=27;
 
-translate([-battery_w/2,-95,4])
+translate([-battery_w/2,-100,4])
     cube([battery_w,battery_l,battery_h]);
-
- 
+*/
