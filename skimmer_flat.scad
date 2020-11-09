@@ -11,18 +11,18 @@ $fs=0.01;
 $fa=3;
 $fn=100;
 
-flag_floor=false;
-flag_roof=false;
-flag_frame=false;
-flag_wings=false;
-flag_wing_inner=false;
-flag_wing_outer=false;
+flag_floor=true;
+flag_roof=true;
+flag_frame=true;
+flag_wings=true;
+flag_wing_inner=true;
+flag_wing_outer=true;
 flag_drops=true;
-flag_crossbar=false;
-flag_engines=false;
-flag_battery=false;
+flag_crossbar=true;
+flag_engines=true;
+flag_battery=true;
 
-flag_flatten=true;
+flag_flatten=false;
 
 
 arm_l=90;
@@ -106,79 +106,80 @@ module wing(flip) {
                     }
                     
                     // hinge
-                    if (flag_inner)
+                    if (flag_wing_inner)
                         translate([0,141,-2]) {
                             cylinder(4,4,4);
                         }
                     
                     // wing holes
-                    wh=0.6;
-                    wd=wing_h;
-                    translate([-70,165,0]) {
-                        rotate([0,0,0]) {
-                            translate([2.2,-15,-0.02])    {
-                                cylinder(wd+0.03,wh,wh);
+                    if (flag_wing_inner || flag_wing_outer) {    
+                        wh=0.6;
+                        wd=wing_h;
+                        translate([-70,165,0]) {
+                            rotate([0,0,0]) {
+                                translate([2.2,-15,-0.02])    {
+                                    cylinder(wd+0.03,wh,wh);
+                                }
+                                translate([2.2,-28,-0.02]){
+                                    cylinder(wd+0.03,wh,wh);
+                                }
                             }
-                            translate([2.2,-28,-0.02]){
-                                cylinder(wd+0.03,wh,wh);
-                            }
-                        }
 
-                        rotate([0,-10,0]) {
-                            translate([-2,-15,-0.05]) {
-                                cylinder(wd+0.03,wh,wh);
-                            }
-                            translate([-2,-28,-0.05]) {
-                                cylinder(wd+0.03,wh,wh);
-                            }
+                            rotate([0,-10,0]) {
+                                translate([-2,-15,-0.05]) {
+                                    cylinder(wd+0.03,wh,wh);
+                                }
+                                translate([-2,-28,-0.05]) {
+                                    cylinder(wd+0.03,wh,wh);
+                                }
+                            }  
                         }  
-                    }  
+                    }
                 }
                 
                 // drop
                 if (flag_drops) {
                     dh = 0.5;
-                    difference() { 
-                        translate([-70,165,0]) {
-                            difference() {
-                                rotate([0,-5,0])
-                                    scale([0.6,0.6,0.6])
-                                        rotate([0,90,270])
-                                            scale([0.4, 0.8])
-                                                rotate_extrude()
-                                                    rotate([0, 0, 90])
-                                                        difference() {
-                                                            polygon(points = airfoil_data(naca=NACA(30))); 
-                                                            square(100, 100); 
-                                                        }
-                                               
-                                rotate([0,0,0]) {
-                                    translate([2.2,-15,2.6])                
-                                        cylinder(20,dh*2,dh*2);
-                                    translate([2.2,-15,-10])                
-                                        cylinder(20,dh,dh);
-                                    translate([2.2,-28,2.6])                
-                                        cylinder(20,dh*2,dh*2);
-                                    translate([2.2,-28,-10])                
-                                        cylinder(20,dh,dh);
-                                }
-                                                   
-                                rotate([0,-10,0]) {
-                                    translate([-2,-15,2.6])                
-                                        cylinder(20,dh*2,dh*2);
-                                    translate([-2,-15,-10])                
-                                        cylinder(20,dh,dh);
-                                    translate([-2,-28,2.5])                
-                                        cylinder(20,dh*2,dh*2);
-                                    translate([-2,-28,-10])                
-                                        cylinder(20,dh,dh);
-                                }
+                    translate([-70,165,0]) {
+                        difference() {
+                            rotate([0,-5,0])
+                                scale([0.6,0.6,0.6])
+                                    rotate([0,90,270])
+                                        scale([0.4, 0.8])
+                                            rotate_extrude()
+                                                rotate([0, 0, 90])
+                                                    difference() {
+                                                        polygon(points = airfoil_data(naca=NACA(30))); 
+                                                        square(100, 100); 
+                                                    }
+                                           
+                            rotate([0,0,0]) {
+                                translate([2.2,-15,2.6])                
+                                    cylinder(20,dh*2,dh*2);
+                                translate([2.2,-15,-10])                
+                                    cylinder(20,dh,dh);
+                                translate([2.2,-28,2.6])                
+                                    cylinder(20,dh*2,dh*2);
+                                translate([2.2,-28,-10])                
+                                    cylinder(20,dh,dh);
                             }
+                                               
+                            rotate([0,-10,0]) {
+                                translate([-2,-15,2.6])                
+                                    cylinder(20,dh*2,dh*2);
+                                translate([-2,-15,-10])                
+                                    cylinder(20,dh,dh);
+                                translate([-2,-28,2.5])                
+                                    cylinder(20,dh*2,dh*2);
+                                translate([-2,-28,-10])                
+                                    cylinder(20,dh,dh);
+                            }
+
+                            translate([-4,-23.9,1.25])
+                                rotate([-10,102,-10])
+                                    linear_extrude(height=30) 
+                                        circle(1.52);
                         }
-                        translate([-74,141.1,1.1]) 
-                            rotate([-9.6,101.7,-9.5])
-                                linear_extrude(height=30) 
-                                    circle(1.54);
                     }
                 } 
             }
@@ -511,14 +512,13 @@ if (flag_wings || flag_drops) {
         }
     }
     
-    /*
     if (!flag_flatten) {
         translate([21,-90,1.5]) {
             rotate([20,11,4]) {    
                 wing(1);
             }
         }
-    }*/
+    }
 }
 
 if (flag_crossbar) {
