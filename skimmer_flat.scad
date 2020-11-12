@@ -11,18 +11,19 @@ $fs=0.01;
 $fa=3;
 $fn=100;
 
-flag_floor=true;
-flag_roof=true;
-flag_frame=true;
-flag_wings=true;
-flag_wing_inner=true;
-flag_wing_outer=true;
-flag_drops=true;
-flag_crossbar=true;
-flag_engines=true;
-flag_battery=true;
+flag_floor=false;
+flag_roof=false;
+flag_frame=false;
+flag_wings=false;
+flag_wing_inner=false;
+flag_wing_outer=false;
+flag_drops=false;
+flag_crossbar=false;
+flag_plugs=true;
 
-flag_flatten=false;
+flag_engines=false;
+flag_battery=false;
+flag_flatten=true;
 
 
 arm_l=90;
@@ -152,7 +153,8 @@ module wing(flip) {
                                                         polygon(points = airfoil_data(naca=NACA(30))); 
                                                         square(100, 100); 
                                                     }
-                                           
+                                      
+                            // bolt holes     
                             rotate([0,0,0]) {
                                 translate([2.2,-15,2.6])                
                                     cylinder(20,dh*2,dh*2);
@@ -175,10 +177,23 @@ module wing(flip) {
                                     cylinder(20,dh,dh);
                             }
 
+                            // pole
                             translate([-4,-23.9,1.25])
                                 rotate([-10,102,-10])
                                     linear_extrude(height=30) 
                                         circle(1.52);
+                        
+                            // inner wing
+                            translate([70,-165,0])
+                                linear_extrude(height=wing_h, twist=0, scale=1)
+                                    polygon([[-wing_w,wing_l],[0,wing_l],[0,30],[-wing_w,70]]);
+                        
+                            // outer wing
+                            translate([70,-165,0])
+                                translate([0.2-wing_w,70,0])
+                                    rotate([0,-10,0])
+                                        linear_extrude(height=wing_h, twist=0, scale=1)
+                                            polygon([[-wing_w,90],[0,90],[0,0],[20-wing_w,40]]);
                         }
                     }
                 } 
@@ -285,22 +300,22 @@ module floor() {
         linear_extrude(height=3) {
             // 20 degrees pole holes
             hull() {
-                translate([21,-77.8])
-                    circle(2.5);
-                translate([18.5,-86])
-                    square(5);
+                translate([21,-82])
+                    circle(3.5);
+                translate([17.5,-86])
+                    square([7,4]);
             }  
-            translate([19.5,-91])
-                square([3,6]);
+            translate([18.5,-91])
+                square([5,6]);
             
             hull() {
-                translate([-21,-77.8])
-                    circle(2.5);
-                translate([-23.5,-85])
-                    square(5);
+                translate([-21,-82])
+                    circle(3.5);
+                translate([-24.5,-86])
+                    square([7,4]);
             }    
-            translate([-22.5,-91])
-                square([3,6]); 
+            translate([-23.5,-91])
+                square([5,6]); 
             
             // back holes
             translate([21,-95])
@@ -408,33 +423,55 @@ module crossbar() {
 
 
 // main starts here
-if (flag_frame) {
-    // pole plugs
-    translate([-23.5,-92,-1]) {   
-        hull() {      
-            linear_extrude(height=5) 
-                square([5,7]); 
-            translate([2.5,6,4.4])
-                rotate([0,90,90])
-                    cylinder(1,2.5,2.5);
+if (flag_plugs) {
+    translate([flag_flatten ? 23.5 : 0, flag_flatten ? 92 : 0, flag_flatten ? 1 : 0])
+        difference() {
+            translate([-23.5,-92,-1]) {   
+                hull() {      
+                    linear_extrude(height=5) 
+                        square([5,6]); 
+                    translate([2.5,5,4.4])
+                        rotate([0,90,90])
+                            cylinder(1,2.5,2.5);
+                }
+                translate([-1,0,4])
+                    linear_extrude(height=1) 
+                        square([7,6]);
+                translate([-1,0,0])
+                    linear_extrude(height=1) 
+                        square([7,6]);
+            } 
+            
+            // pole
+            translate([-21,0,0])  
+                translate([0,-90,1.5])
+                    rotate([290,-11,-4]) {
+                        linear_extrude(height=160) 
+                            circle(1.5); 
+                    }       
+            
         }
-        translate([-1,0,4])
-            linear_extrude(height=1) 
-                square([7,7]); 
-    }
-    translate([18.5,-92,-1]) {   
-        hull() {      
-            linear_extrude(height=5) 
-                square([5,7]); 
-            translate([2.5,6,4.4])
-                rotate([0,90,90])
-                    cylinder(1,2.5,2.5);
+    
+    if (!flag_flatten) {  
+        translate([18.5,-92,-1]) {   
+            hull() {      
+                linear_extrude(height=5) 
+                    square([5,6]); 
+                translate([2.5,5,4.4])
+                    rotate([0,90,90])
+                        cylinder(1,2.5,2.5);
+            }
+            translate([-1,0,4])
+                linear_extrude(height=1) 
+                    square([7,6]); 
+            translate([-1,0,0])
+                linear_extrude(height=1) 
+                    square([7,6]);
         }
-        translate([-1,0,4])
-            linear_extrude(height=1) 
-                square([7,7]); 
     }
+}
 
+if (flag_frame) {
     // wing supports   
     translate([-21,0,0]) {
         // front vertical pole
@@ -503,7 +540,7 @@ if (flag_frame) {
 if (flag_wings || flag_drops) {
     translate([-21,-90,1.5]) {   
         if (flag_flatten) {
-            translate([21,0,0])
+            translate([flag_drops ? 90 : 21,0,0])
                 wing(0);
         } else {
             rotate([20,-11,-4]) {    
@@ -518,7 +555,7 @@ if (flag_wings || flag_drops) {
                 wing(1);
             }
         }
-    }
+    } 
 }
 
 if (flag_crossbar) {
