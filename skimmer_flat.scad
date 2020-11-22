@@ -15,10 +15,10 @@ flag_floor=true;
 flag_roof=true;
 flag_frame=true;
 flag_stays=true;
-flag_wing_inner=false;
-flag_wing_outer=false;
+flag_wing_inner=true;
+flag_wing_outer=true;
 flag_drops=true;
-flag_crossbar=false;
+flag_crossbar=true;
 flag_plugs=true;
 
 flag_engines=false;
@@ -220,6 +220,7 @@ module engine() {
 
 floor_w=25;
 floor_l=80;
+mount_d=30.5; 
 
 module floor() {
     difference() {
@@ -259,15 +260,10 @@ module floor() {
                 }
                     
                 // bars
-                translate([0,16]) {
-                    polygon([[-floor_w,10],[floor_w,10],[floor_w,0],[-floor_w,0]]);
-                    translate([0,-31])
-                        polygon([[-floor_w,10],[floor_w,10],[floor_w,0],[-floor_w,0]]);
-                    translate([0,-62])
-                        polygon([[-floor_w,10],[floor_w,10],[floor_w,0],[-floor_w,0]]);
-                    translate([0,-93])
-                        polygon([[-floor_w,10],[floor_w,10],[floor_w,0],[-floor_w,0]]);
-                }
+                translate([0,14.5])
+                    for (i = [0 : 3])
+                        translate([0,-i * mount_d])
+                            polygon([[-floor_w,10],[floor_w,10],[floor_w,0],[-floor_w,0]]);
             }
     
             // arms     
@@ -356,53 +352,27 @@ module floor() {
                circle(1.5);
             
             // mounting holes
-            translate([0,-102.5]) {
-                translate([15.5,0])
-                   circle(1);    
-                translate([-15.5,0])
-                   circle(1);
-                translate([15.5,31])
-                   circle(1);    
-                translate([-15.5,31])
-                   circle(1);
-                translate([15.5,62])
-                   circle(1);    
-                translate([-15.5,62])
-                   circle(1);
-                translate([15.5,93])
-                   circle(1);    
-                translate([-15.5,93])
-                   circle(1);
-                translate([15.5,124])
-                   circle(1);    
-                translate([-15.5,124])
-                   circle(1);
-                translate([15.5,155])
-                   circle(1);    
-                translate([-15.5,155])
-                   circle(1);
-            }
+            translate([0,-102.5]) 
+                for (i = [0 : 5]) {
+                    translate([mount_d/2,i * mount_d])
+                       circle(1);    
+                    translate([-mount_d/2,i * mount_d])
+                       circle(1);
+                }                
             
             // gutters
-            translate([18,-57]) {
-                translate([1.5,0,0]) circle(1.5);
-                square([3,32]);
-                translate([1.5,32,0]) circle(1.5);
-            }
-            translate([18,7]) {
-                translate([1.5,0,0]) circle(1.5);
-                square([3,32]);
-                translate([1.5,32,0]) circle(1.5);
-            }
-            translate([-21,-57]) {
-                translate([1.5,0,0]) circle(1.5);
-                square([3,32]);
-                translate([1.5,32,0]) circle(1.5);
-            }
-            translate([-21,7]) {
-                translate([1.5,0,0]) circle(1.5);
-                square([3,32]);
-                translate([1.5,32,0]) circle(1.5);
+            translate([0,3.5]) 
+                for (i = [0, 2]) {    
+                translate([18,-i * mount_d]) {
+                    translate([1.5,0,0]) circle(1.5);
+                    square([3,32]);
+                    translate([1.5,32,0]) circle(1.5);
+                }
+                translate([-21,-i * mount_d]) {
+                    translate([1.5,0,0]) circle(1.5);
+                    square([3,32]);
+                    translate([1.5,32,0]) circle(1.5);
+                }
             }
         }
     }
@@ -430,15 +400,9 @@ module roof() {
                         
                         // bars
                         translate([-10,52]) {
-                            square([20, 20]);
-                            translate([0,-31])
-                               square([20, 20]);
-                            translate([0,-62])
-                               square([20, 20]);
-                            translate([0,-93])
-                               square([20, 20]);
-                            translate([0,-124])
-                               square([20, 20]);
+                            for (i = [0 : 4])
+                                translate([0,-i * mount_d])
+                                    square([20, 20]);
                         }
                     }
 
@@ -457,54 +421,23 @@ module roof() {
                    circle(1.5);    
      
                 // mounting holes
-                translate([0,-63]) {
-                    translate([15.5,0])
-                       circle(1);    
-                    translate([-15.5,0])
-                       circle(1);
-                    translate([15.5,31])
-                       circle(1);    
-                    translate([-15.5,31])
-                       circle(1);
-                    translate([15.5,62])
-                       circle(1);    
-                    translate([-15.5,62])
-                       circle(1);
-                    translate([15.5,93])
-                       circle(1);    
-                    translate([-15.5,93])
-                       circle(1);
-                    translate([15.5,124])
-                       circle(1);    
-                    translate([-15.5,124])
-                       circle(1);
-                    translate([15.5,155])
-                       circle(1);    
-                    translate([-15.5,155])
-                       circle(1);
-                }
+                translate([0,-60])
+                    for (i = [0 : 5]) {
+                        translate([mount_d/2,i * mount_d])
+                           circle(1);    
+                        translate([-mount_d/2,i * mount_d])
+                           circle(1);
+                    }
             
                 // gutters
-                translate([-12,-48]) {
-                    translate([0,1.5,0]) circle(1.5);
-                    square([24,3]);
-                    translate([24,1.5,0]) circle(1.5);
-                }
-                translate([-12,-17]) {
-                    translate([0,1.5,0]) circle(1.5);
-                    square([24,3]);
-                    translate([24,1.5,0]) circle(1.5);
-                }
-                translate([-12,14]) {
-                    translate([0,1.5,0]) circle(1.5);
-                    square([24,3]);
-                    translate([24,1.5,0]) circle(1.5);
-                }
-                translate([-12,45]) {
-                    translate([0,1.5,0]) circle(1.5);
-                    square([24,3]);
-                    translate([24,1.5,0]) circle(1.5);
-                }
+                gutter_r=1.5;    
+                translate([-12,-46.25])
+                    for (i = [0 : 3])    
+                        translate([0,i * mount_d]) {
+                            translate([0,1.5,0]) circle(gutter_r);
+                            square([24,3]);
+                            translate([24,1.5,0]) circle(gutter_r);
+                        }
             }
         }
 }
@@ -748,21 +681,36 @@ if (flag_wing_inner || flag_wing_outer || flag_drops) {
                 if (flag_wing_outer) {
                     difference() {
                         projection(cut=true) 
-                                translate([-21,90,2.9])
-                                    rotate([0,12,0])                 
-                                        translate([142,-68,12])
-                                            wing(false);
-                        difference() {
-                            projection(cut=true) 
-                                translate([-21,90,2.9])
-                                    rotate([0,12,0])                 
-                                        translate([142,-68,12])
-                                            wing(false);
-                            projection(cut=true) 
-                                translate([-21,90,3.66])
-                                    rotate([0,12,0])                 
-                                        translate([142,-68,12])
-                                            wing(false);
+                            translate([-21,90,3.4])
+                                rotate([0,12,0])                 
+                                    translate([142,-68,12])
+                                        wing(false);
+                        fillet(r=100)
+                        union() {
+                            difference() {
+                                projection(cut=true) 
+                                    translate([-21,90,3.66])
+                                        rotate([0,12,0])                 
+                                            translate([142,-68,12])
+                                                wing(false);
+                                projection(cut=true) 
+                                    translate([-21,90,3.3])
+                                        rotate([0,12,0])                 
+                                            translate([142,-68,12])
+                                                wing(false);
+                            }
+                            difference() {
+                                projection(cut=true) 
+                                    translate([-21,90,2.9])
+                                        rotate([0,12,0])                 
+                                            translate([142,-68,12])
+                                                wing(false);
+                                projection(cut=true) 
+                                    translate([-21,90,3.3])
+                                        rotate([0,12,0])                 
+                                            translate([142,-68,12])
+                                                wing(false);
+                            }
                         }
                     }
                 }
