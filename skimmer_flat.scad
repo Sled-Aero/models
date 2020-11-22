@@ -20,6 +20,8 @@ flag_wing_outer=true;
 flag_drops=true;
 flag_crossbar=true;
 flag_plugs=true;
+flag_back_pole=true;
+flag_front_pole=true;
 
 flag_engines=false;
 flag_battery=false;
@@ -442,7 +444,6 @@ module roof() {
         }
 }
 
-
 module crossbar() {
     translate([0,0,20]) {
         rotate([0,90,0]) {
@@ -477,35 +478,85 @@ module 20pole() {
             circle(frame_pole_r);  
 }
 
+module stay() {
+    difference() {
+        linear_extrude(height=4) {
+            difference() {
+                circle(frame_pole_r+1); 
+                circle(frame_pole_r);
+            }
+        }
+        translate([0,-1,2]) 
+            rotate([90,0,0])
+                cylinder(3,0.75,0.75); 
+    }
+}
+
+module back_pole() {
+    difference() {
+        translate([0,-95,3])
+            rotate([0,0,0]) 
+                linear_extrude(height=41.4) 
+                    difference() {
+                        circle(3); 
+                        circle(1); 
+                    }
+        
+        // pole holes            
+        translate([0,-90,1.5]) {           
+            translate([0,-3.3,7])
+                rotate([290,11,4])    
+                    20pole();  
+            translate([0,-3.3,12])
+                rotate([290,24,8.3])    
+                    20pole(); 
+            translate([0,-3.3,17])
+                rotate([290,36,12])    
+                    20pole(); 
+            translate([0,-3.3,22])
+                rotate([290,44,14])    
+                    20pole();
+            translate([0,-3.3,27])
+                rotate([290,52,15.8])    
+                    20pole();
+        }
+    }
+}
+
+module front_pole() {
+    // front vertical pole
+    union() {
+        translate([0,60,0]) {
+            difference() {
+                rotate([20,0,0])
+                    translate([0,-0.7,1.5]) {
+                        // pole
+                        linear_extrude(height=63) 
+                            difference() {
+                                circle(3); 
+                                circle(1); 
+                            }
+                        
+                        // extension of hole (debugging) 
+                        /* translate([0,0,-20])
+                            linear_extrude(height=80) 
+                                circle(1); */
+                        }
+                
+                // clip end of pole        
+                translate([0,-1.5,0]) {
+                    cylinder(3,5,5);
+                }    
+            }
+        }           
+    }
+}
+
 module frame() {
     // wing supports   
     translate([-21,0,0]) {
         // front vertical pole
-        union() {
-            translate([0,60,0]) {
-                difference() {
-                    rotate([20,0,0])
-                        translate([0,-0.7,1.5]) {
-                            // pole
-                            linear_extrude(height=63) 
-                                difference() {
-                                    circle(3); 
-                                    circle(1); 
-                                }
-                            
-                            // extension of hole (debugging) 
-                            /* translate([0,0,-20])
-                                linear_extrude(height=80) 
-                                    circle(1); */
-                            }
-                    
-                    // clip end of pole        
-                    translate([0,-1.5,0]) {
-                        cylinder(3,5,5);
-                    }    
-                }
-            }           
-        }
+        front_pole();
         
         // 20 degrees pole
         translate([0,-3.3,7])
@@ -517,57 +568,17 @@ module frame() {
                         
                         if (flag_stays)
                             translate([0,0,0.1]) 
-                                difference() {
-                                    linear_extrude(height=4) {
-                                        difference() {
-                                            circle(frame_pole_r+1); 
-                                            circle(frame_pole_r);
-                                        }
-                                    }
-                                    translate([0,-2,2]) 
-                                        rotate([90,0,0])
-                                            cylinder(2,0.75,0.75); 
-                                }
+                                stay();
                     }
             }
         
         // back vertical pole
-        translate([0,-95,3])
-            rotate([0,0,0]) 
-                linear_extrude(height=41.4) 
-                    difference() {
-                        circle(3); 
-                        circle(1); 
-                    }
+        if (flag_back_pole) {    
+            back_pole();
+        }
     }
     translate([21,0,0]) {
-        // front vertical pole
-        difference() {
-            translate([0,60,0]) {
-                difference() {
-                    rotate([20,0,0])
-                        translate([0,-0.7,1.5]) {
-                            // pole
-                            linear_extrude(height=63) 
-                                difference() {
-                                    circle(3); 
-                                    circle(1); 
-                                }
-                            
-                            // extension of hole (debugging)  
-                            /*    
-                            translate([0,0,-20])
-                                linear_extrude(height=80) 
-                                    circle(1); */
-                            } 
-                        
-                    // clip end of pole
-                    translate([0,-1.5,0]) {
-                        cylinder(3,5,5);
-                    }
-                }
-            }          
-        }            
+        front_pole();     
                     
         // 20 degrees pole
         translate([0,-3.3,7])
@@ -577,70 +588,15 @@ module frame() {
             }
         
         // back vertical pole
-        difference() {
-            translate([0,-95,3])
-                rotate([0,0,0]) 
-                    linear_extrude(height=41.4) 
-                        difference() {
-                            circle(3); 
-                            circle(1); 
-                        }
-            
-            // pole holes            
-            translate([0,-90,1.5]) {           
-                translate([0,-3.3,7])
-                    rotate([290,11,4])    
-                        20pole();  
-                translate([0,-3.3,12])
-                    rotate([290,24,8.3])    
-                        20pole(); 
-                translate([0,-3.3,17])
-                    rotate([290,36,12])    
-                        20pole(); 
-                translate([0,-3.3,22])
-                    rotate([290,44,14])    
-                        20pole();
-                translate([0,-3.3,27])
-                    rotate([290,52,15.8])    
-                        20pole();
-            }
+        if (flag_back_pole) {    
+            back_pole();
         }
     }
 }
 
-
-// main starts here
-if (flag_plugs) {
-    translate([flag_flatten ? 23.5 : 0, flag_flatten ? 92 : 0, flag_flatten ? 1 : 0])
-        difference() {
-            translate([-23.5,-92,-1]) {   
-                hull() {      
-                    linear_extrude(height=5) 
-                        square([5,6]); 
-                    translate([2.5,5,4.4])
-                        rotate([0,90,90])
-                            cylinder(1,2.5,2.5);
-                }
-                translate([-1,0,4])
-                    linear_extrude(height=1) 
-                        square([7,6]);
-                translate([-1,0,0])
-                    linear_extrude(height=1) 
-                        square([7,6]);
-            } 
-            
-            // pole hole
-            translate([-21,0,0])  
-                translate([0,-90,1.5])
-                    rotate([290,-11,-4]) {
-                        linear_extrude(height=160) 
-                            circle(frame_pole_r); 
-                    }       
-            
-        }
-    
-    if (!flag_flatten) {  
-        translate([18.5,-92,-1]) {   
+module plug() {
+    difference() {
+        union() { 
             hull() {      
                 linear_extrude(height=5) 
                     square([5,6]); 
@@ -650,10 +606,33 @@ if (flag_plugs) {
             }
             translate([-1,0,4])
                 linear_extrude(height=1) 
-                    square([7,6]); 
+                    square([7,6]);
             translate([-1,0,0])
                 linear_extrude(height=1) 
                     square([7,6]);
+        }
+        
+        // pole hole
+        translate([2.5,92,1])  
+            translate([0,-90,1.5])
+                rotate([290,-11,-4]) {
+                    linear_extrude(height=160) 
+                        circle(frame_pole_r); 
+                }  
+        }     
+}
+
+
+// main starts here
+if (flag_plugs) {
+    translate([flag_flatten ? 23.5 : 0, flag_flatten ? 92 : 0, flag_flatten ? 1 : 0])
+        translate([-23.5,-92,-1]) {
+            plug();   
+        }
+
+    if (!flag_flatten) {  
+        translate([18.5,-92,-1]) {   
+            plug();
         }
     }
 }
@@ -665,11 +644,38 @@ if (flag_frame) {
     frame();
 }
 
+if (flag_flatten) {
+    if (flag_stays) 
+        stay();
+    
+    if (flag_back_pole) {
+        translate([0,95,-3])
+            back_pole();
+    }
+    
+    if (flag_front_pole) {
+        translate([0,56,44])
+            rotate([-200,0,0])
+                difference() {
+                    front_pole();
+                    
+                    // 20 degrees pole
+                    for (i = [0 : 6])
+                        translate([0,20*i,0])
+                            translate([0,-3.3,7])
+                                translate([0,-90,1.5])
+                                    rotate([290,11,4]) {
+                                        20pole();                 
+                                }
+        }
+    }
+}
+
 if (flag_wing_inner || flag_wing_outer || flag_drops) {
     translate([-21,-90,flag_flatten ? 0 : frame_pole_r]) {   
         if (flag_flatten) {
             if (flag_drops) {
-                translate([-90,0,0])
+                translate([90,-15,0])
                     wing(false);
             } else {
                 if (flag_wing_inner) {
