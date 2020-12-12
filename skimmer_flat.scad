@@ -23,7 +23,7 @@ flag_plugs=true;
 flag_back_pole=true;
 flag_front_pole=true;
 
-flag_engines=false;
+flag_engines=true;
 flag_battery=false;
 flag_flatten=false;
 
@@ -627,7 +627,22 @@ module plug() {
 if (flag_plugs) {
     translate([flag_flatten ? 23.5 : 0, flag_flatten ? 92 : 0, flag_flatten ? 1 : 0])
         translate([-23.5,-92,-1]) {
-            plug();   
+            for (i = [0 : 1])
+                for (j = [0 : 2]) {
+                    translate([i * 8.5, j * 7, 0]) {
+                        plug();   
+                    
+                        // lugs
+                        if (i > 0)
+                            translate([-2.75,4,0.5])
+                                rotate([0,90,0])
+                                    cylinder(2,0.5,0.5);
+                        if (j > 0)
+                            translate([1,0.5,0.5])
+                                rotate([90,0,0])
+                                    cylinder(2,0.5,0.5);
+                    }
+                }
         }
 
     if (!flag_flatten) {  
@@ -646,27 +661,70 @@ if (flag_frame) {
 
 if (flag_flatten) {
     if (flag_stays) 
-        stay();
+        for (i = [0 : 2])
+            for (j = [0 : 2])
+                translate([i * 6, j * 6, 0]) {
+                    rotate([0,0,45])
+                        stay();
+                    
+                    // lugs
+                    if (i > 0)
+                        translate([-4,0,2])
+                            rotate([0,90,0])
+                                cylinder(2,0.5,0.5);
+                    if (j > 0)
+                        translate([0,-2,2])
+                            rotate([90,0,0])
+                                cylinder(2,0.5,0.5);
+                }
     
     if (flag_back_pole) {
-        translate([0,95,-3])
-            back_pole();
+        for (i = [0 : 1])
+            for (j = [0 : 1]) 
+                translate([i * 7, j * 7, 0]) {
+                    translate([0,95,-3])
+                        back_pole();
+                    
+                    // lugs
+                    if (i > 0)
+                        translate([-4.5,0,0.5])
+                            rotate([0,90,0])
+                                cylinder(2,0.5,0.5);
+                    if (j > 0)
+                        translate([0,-2.5,0.5])
+                            rotate([90,0,0])
+                                cylinder(2,0.5,0.5);
+                }
     }
     
     if (flag_front_pole) {
-        translate([0,56,44])
-            rotate([-200,0,0])
-                difference() {
-                    front_pole();
-                    
-                    // 20 degrees pole
-                    for (i = [0 : 6])
-                        translate([0,20*i,0])
-                            translate([0,-3.3,7])
-                                translate([0,-90,1.5])
-                                    rotate([290,11,4]) {
-                                        20pole();                 
-                                }
+        for (i = [0 : 1])
+            for (j = [0 : 1]) 
+                translate([i * 7, j * 7, 0]) {
+                    translate([0,56,44])
+                        rotate([-200,0,0])
+                            difference() {
+                                front_pole();
+                                
+                                // 20 degrees pole
+                                for (k = [0 : 6])
+                                    translate([0,20*k,0])
+                                        translate([0,-3.3,7])
+                                            translate([0,-90,1.5])
+                                                rotate([290,11,4])
+                                                    20pole();
+                            }
+                                            
+                    // lugs
+                    if (i > 0)
+                        translate([-4.5,0,0.6])
+                            rotate([0,90,0])
+                                cylinder(2,0.5,0.5);
+                    if (j > 0)
+                        translate([0,-2.5,0.6])
+                            rotate([90,0,0])
+                                cylinder(2,0.5,0.5);                            
+                
         }
     }
 }
@@ -675,8 +733,17 @@ if (flag_wing_inner || flag_wing_outer || flag_drops) {
     translate([-21,-90,flag_flatten ? 0 : frame_pole_r]) {   
         if (flag_flatten) {
             if (flag_drops) {
-                translate([90,-15,0])
-                    wing(false);
+                for (i = [0 : 1]) {
+                    translate([-56.5,-15,-8 * i]) 
+                        wing(true);
+                    translate([99,-15,-8 * i]) 
+                        wing(false); 
+                    translate([18.5,120,-8 * i]) 
+                        rotate([0,90,0])
+                            cylinder(5,0.5,0.5);
+                }
+                translate([21.5,120,-8]) 
+                    cylinder(9,0.5,0.5);
             } else {
                 if (flag_wing_inner) {
                     projection(cut=true)
