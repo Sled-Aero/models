@@ -18,16 +18,17 @@ flag_stays=true;
 flag_wing_inner=true;
 flag_wing_outer=true;
 flag_drops=true;
+flag_tips=true;
 flag_crossbar=true;
 flag_plugs=true;
 flag_back_pole=true;
 flag_front_pole=true;
 
-flag_engines=false;
-flag_battery=false;
+flag_engines=true;
+flag_battery=true;
 flag_flatten=false;
 
-
+wing_lift=12;
 arm_l=75;
 arm_w=5;
 
@@ -95,15 +96,23 @@ module wing(flip) {
                                 rotate([0,-12,0])
                                     difference() {
                                         linear_extrude(height=wing_h, twist=0, scale=1)
-                                            polygon([[-wing_w,100],[0,95],[0,-25],[-5,-30]]);
+                                            polygon([[-43,98],[0,95],[0,-25],[-43,-60]]);
 
                                     }
-                                    
+                                 
+                        if (flag_tips) {
+                            rotate([77,-15,274])
+                                translate([-195,2.4,108])
+                                    rotate([-12,0.5,-9.5])
+                                        scale([1.66,2.1,1])
+                                            linear_extrude(height=1.5, twist=0, scale=1)
+                                                polygon(points = airfoil_data(naca=[.0, .0, .18]));
+                         }
                     }
                     
                     if (flag_wing_inner || flag_wing_outer) {           
                         // pole hole
-                        translate([-61.9,145.4,-2.37])
+                        translate([-61.7,141.4,-1.4])
                             rotate([0,101.65,0]) {  
                                 translate([0,0,-13])  
                                     linear_extrude(height=50) 
@@ -111,12 +120,12 @@ module wing(flip) {
                             }
                         
                         // hinge
-                        translate([0,145.45,-2])
+                        translate([0,141.4,-2])
                             cylinder(4,4,4);
                         
                         // engine hole    
                         rotate([-20,12,0])           
-                            translate([-70,-5,-30])    
+                            translate([-70,-5,-45])    
                                 cylinder(engine_r, engine_r+2, engine_r+2);  
                         
                         // bolt holes   
@@ -148,8 +157,8 @@ module wing(flip) {
                 if (flag_drops) {
                     dh = 0.5;
                     translate([-70,170,0]) {
-                        difference() { 
-                            rotate([0,-5,0])
+                        difference() {
+                            rotate([-1,-5,0])
                                 scale([0.6,0.6,0.6])
                                     rotate([0,90,270])
                                         scale([0.4, 0.8])
@@ -161,10 +170,10 @@ module wing(flip) {
                                                     }
                                       
                             // pole hole
-                            translate([-4.7,-24.7,0.25])
+                            translate([-4.6,-28.6,1.2])
                                 rotate([0,101.65,0])
                                     linear_extrude(height=80) 
-                                        circle(1.51);                                            
+                                        circle(1.51);                                        
                             // bolt holes     
                             rotate([0,0,0]) {
                                 translate([2.2,-15,2.6])                
@@ -186,7 +195,7 @@ module wing(flip) {
                                     cylinder(20,dh*2,dh*2);
                                 translate([-2,-33,-10])                
                                     cylinder(20,dh,dh);
-                            } 
+                            }
                         
                             // inner wing slice
                             translate([70,-170,0])
@@ -513,16 +522,16 @@ module back_pole() {
             translate([0,-3.3,7])
                 rotate([290,11,4])    
                     20pole();  
-            translate([0,-3.3,12])
+            translate([0,-3.3,13])
                 rotate([290,24,8.3])    
                     20pole(); 
-            translate([0,-3.3,17])
+            translate([0,-3.3,19])
                 rotate([290,36,12])    
                     20pole(); 
-            translate([0,-3.3,22])
+            translate([0,-3.3,25])
                 rotate([290,44,14])    
                     20pole();
-            translate([0,-3.3,27])
+            translate([0,-3.3,31])
                 rotate([290,52,15.8])    
                     20pole();
         }
@@ -537,7 +546,7 @@ module front_pole() {
                 rotate([20,0,0])
                     translate([0,-0.7,1.5]) {
                         // pole
-                        linear_extrude(height=63) 
+                        linear_extrude(height=75) 
                             difference() {
                                 circle(3); 
                                 circle(1); 
@@ -565,7 +574,7 @@ module frame() {
         front_pole();
         
         // 20 degrees pole
-        translate([0,-3.3,7])
+        translate([0,-3.3,wing_lift + 7])
             translate([0,-90,1.5])
                 rotate([290,-11,-4]) {
                     translate([0,0,-10]) {
@@ -587,7 +596,7 @@ module frame() {
         front_pole();     
                     
         // 20 degrees pole
-        translate([0,-3.3,7])
+        translate([0,-3.3,wing_lift + 7])
             translate([0,-90,1.5])
                 rotate([290,11,4]) {
                     20pole();                 
@@ -736,7 +745,7 @@ if (flag_flatten) {
 }
 
 if (flag_wing_inner || flag_wing_outer || flag_drops) {
-    translate([-21,-90,flag_flatten ? 0 : frame_pole_r]) {   
+    translate([-21,-90,flag_flatten ? 0 : wing_lift + frame_pole_r]) {   
         if (flag_flatten) {
             if (flag_drops) {
                 for (i = [0 : 1]) {
@@ -804,7 +813,7 @@ if (flag_wing_inner || flag_wing_outer || flag_drops) {
     
     if (!flag_flatten) {
         translate([0,-3.3,7])
-            translate([21,-90,frame_pole_r]) {
+            translate([21,-90, wing_lift + frame_pole_r]) {
                 rotate([20,11,4]) {    
                     wing(true);
                 }
@@ -813,7 +822,7 @@ if (flag_wing_inner || flag_wing_outer || flag_drops) {
 }
 
 if (flag_crossbar) {
-    translate([0,-3.3,7])
+    translate([0,-7.5,18.5])
         crossbar();
 }
 
