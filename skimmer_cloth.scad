@@ -15,9 +15,9 @@ flag_floor=true;
 flag_roof=true;
 flag_frame=true;
 flag_stays=true;
-flag_wing_inner=true;
-flag_wing_outer=true;
-flag_drops=true;
+flag_wing_inner=false;
+flag_wing_outer=false;
+flag_drops=false;
 flag_tips=true;
 flag_crossbar=true;
 flag_plugs=true;
@@ -28,14 +28,7 @@ flag_engines=true;
 flag_battery=true;
 flag_flatten=false;
 
-wing_lift=7;
-wing_spread=21;
-wing_attack_degrees=20;
-wing_drop_degrees=2;
-wing_camber_degrees=12;
-wing_tip_degrees=18;
-wing_tip_offset_degrees=5;
-
+wing_lift=12;
 arm_l=75;
 arm_w=5;
 
@@ -82,13 +75,12 @@ module arm() {
 
 wing_l=165;
 wing_w=70;
-wing_w2=44;
-wing_h=1.0;
+wing_h=0.8;
     
 module wing(flip) {
     mirror([flip ? 1 : 0,0]) {
         // wings
-        translate([0,-8.5,-wing_h/2]) { 
+        translate([0,-5,-wing_h/2]) { 
             union() {
                 // wing   
                 difference() {
@@ -101,65 +93,45 @@ module wing(flip) {
                          
                         if (flag_wing_outer)    
                             translate([0.2-wing_w,70,0])
-                                rotate([0,-wing_camber_degrees,0])
+                                rotate([0,-12,0])
                                     difference() {
                                         linear_extrude(height=wing_h, twist=0, scale=1)
-                                            polygon([[-wing_w2,98],[0,95],[0,-25],[-wing_w2,-60]]);
+                                            polygon([[-43,98],[0,95],[0,-25],[-43,-60]]);
 
                                     }
                                  
                         if (flag_tips) {
-                            translate([0.2-wing_w,170+13,0])
-                                rotate([0,-wing_camber_degrees,0]) 
-                                    translate([0.5-wing_w2,0,0.5]) {
-                                        // mount
-                                        translate([0,-55,0.5])
-                                            difference() {
-                                                rotate([0,0,270]) rotate_extrude(angle=180) square([5,1]);
-                                                translate([2.5,0,0])                
-                                                    cylinder(2,0.8,0.8);
-                                            }
-                                        
-                                        // mount
-                                        translate([0,-100,0.5])
-                                            difference() {
-                                                rotate([0,0,270]) rotate_extrude(angle=180) square([5,1]);
-                                                translate([2.5,0,0])                
-                                                    cylinder(2,0.8,0.8);
-                                            }
-                                        
-                                        // tip    
-                                        rotate([90,0,270])
-                                            rotate([-wing_tip_degrees-wing_drop_degrees-wing_camber_degrees,0,0])
-                                                rotate([0,0,wing_tip_offset_degrees])
-                                                    translate([0,-sin(wing_tip_offset_degrees)*160,0])
-                                                        scale([1.6,2.1,1])
-                                                            linear_extrude(height=1.5, twist=0, scale=1)
-                                                                polygon(points = airfoil_data(naca=[.0, .0, .18]));
-                            }                        
+                            rotate([77,-15,274])
+                                translate([-195,2.4,108])
+                                    rotate([0,0,-9.5])
+                                        scale([1.66,2.1,1])
+                                            linear_extrude(height=1.5, twist=0, scale=1)
+                                                polygon(points = airfoil_data(naca=[.0, .0, .18]));
                          }
                     }
                     
                     if (flag_wing_inner || flag_wing_outer) {           
                         // pole hole
-                        rotate([0,wing_drop_degrees,0])  
-                            translate([-wing_w,170,0])
-                                translate([1.5+wing_spread+wing_w-crossbar_l/2,-24.25,-wing_h/1.5-wing_w*sin(wing_drop_degrees)])
-                                    crossbar();
+                        translate([-61.7,141.4,-1.4])
+                            rotate([0,101.65,0]) {  
+                                translate([0,0,-13])  
+                                    linear_extrude(height=50) 
+                                        circle(1.5);
+                            }
                         
                         // hinge
-                        translate([frame_pole_r,145.8,-2])
+                        translate([0,141.4,-2])
                             cylinder(4,4,4);
                         
                         // engine hole    
-                        rotate([-wing_attack_degrees,2,0])           
-                            translate([-70,-5,-25])    
+                        rotate([-20,12,0])           
+                            translate([-70,-5,-45])    
                                 cylinder(engine_r, engine_r+2, engine_r+2);  
                         
-                        // drop bolt holes   
+                        // bolt holes   
                         wh=0.51;
                         wd=wing_h;
-                        translate([-wing_w,170,0]) {
+                        translate([-70,170,0]) {
                             rotate([0,0,0]) {
                                 translate([2.2,-15,-0.02])    {
                                     cylinder(wd+0.03,wh,wh);
@@ -178,40 +150,18 @@ module wing(flip) {
                                 }
                             }  
                         }
-                        
-                        // tip bolt holes
-                        translate([0.2-wing_w,170+13,0])
-                            rotate([0,-wing_camber_degrees,0]) 
-                                translate([0.5-wing_w2,0,0.5]) {
-                                    // hole
-                                    translate([0,-55,-1])
-                                        translate([2.5,0,-0.5])                
-                                            cylinder(2,1,1);
-                                    // hole
-                                    translate([0,-100,-1])
-                                        translate([2.5,0,-0.5])                
-                                            cylinder(2,1,1);
-                                }
                     }
-                }
-                
-                // crossbar
-                if (flag_crossbar && !flip) {
-                    rotate([0,wing_drop_degrees,0])  
-                        translate([-wing_w,170,0])
-                            translate([1.5+wing_spread+wing_w-crossbar_l/2,-24.25,-wing_h/1.5-70*sin(wing_drop_degrees)])
-                                crossbar();
                 }
                 
                 // drop
                 if (flag_drops) {
                     dh = 0.5;
-                    translate([-wing_w,170,0]) {
+                    translate([-70,170,0]) {
                         difference() {
-                            rotate([-0.5,-5,0])
+                            rotate([-1,-5,0])
                                 scale([0.6,0.6,0.6])
                                     rotate([0,90,270])
-                                        scale([0.42,0.8])
+                                        scale([0.4, 0.8])
                                             rotate_extrude()
                                                 rotate([0, 0, 90])
                                                     difference() {
@@ -220,11 +170,10 @@ module wing(flip) {
                                                     }
                                       
                             // pole hole
-                            translate([wing_w,-170,0])
-                                rotate([0,wing_drop_degrees,0])  
-                                    translate([-wing_w,170,0])
-                                        translate([1.5+wing_spread+wing_w-crossbar_l/2,-24.25,-wing_h/1.5-wing_w*sin(wing_drop_degrees)])
-                                            crossbar();                                        
+                            translate([-4.6,-28.6,1.2])
+                                rotate([0,101.65,0])
+                                    linear_extrude(height=80) 
+                                        circle(1.51);                                        
                             // bolt holes     
                             rotate([0,0,0]) {
                                 translate([2.2,-15,2.6])                
@@ -249,14 +198,14 @@ module wing(flip) {
                             }
                         
                             // inner wing slice
-                            translate([wing_w,-170,0])
+                            translate([70,-170,0])
                                 linear_extrude(height=wing_h, twist=0, scale=1)
                                     polygon([[-wing_w,wing_l],[0,wing_l],[0,20],[-wing_w,65]]); 
                         
                             // outer wing slice
-                            translate([wing_w,-170,0])
+                            translate([70,-170,0])
                                 translate([0.2-wing_w,70,0])
-                                    rotate([0,-wing_camber_degrees,0])
+                                    rotate([0,-12,0])
                                         linear_extrude(height=wing_h, twist=0, scale=1)
                                             polygon([[10-wing_w,100],[0,95],[0,-5],[20-wing_w,45]]);
                         } 
@@ -354,12 +303,12 @@ module floor() {
         }
 
         // front pole holes        
-        translate([wing_spread,60,-2])
+        translate([21,60,-2])
             rotate([20,0,0])
                 linear_extrude(height=90) 
                     circle(1); 
         
-        translate([-wing_spread,60,-2])
+        translate([-21,60,-2])
             rotate([20,0,0])
                 linear_extrude(height=90) 
                     circle(1);    
@@ -389,7 +338,7 @@ module floor() {
                 square([5,6]);
             
             // stays holes
-            translate([wing_spread,-101.5])
+            translate([21,-101.5])
                 difference() {
                     union() {
                         circle(2.5);
@@ -400,7 +349,7 @@ module floor() {
                         square([5,5]);
                } 
                
-            translate([-wing_spread,-101.5])
+            translate([-21,-101.5])
                 difference() {
                     union() {
                         circle(2.5);
@@ -412,9 +361,9 @@ module floor() {
                } 
             
             // back holes
-            translate([wing_spread,-95])
+            translate([21,-95])
                circle(1.5);    
-            translate([-wing_spread,-95])
+            translate([-21,-95])
                circle(1.5);
             translate([0,-101.5])
                circle(1.5);
@@ -481,9 +430,9 @@ module roof() {
                    circle(1.5);    
                     
                 // back holes    
-                translate([wing_spread,-68])
+                translate([21,-68])
                    circle(1.5);    
-                translate([-wing_spread,-68])
+                translate([-21,-68])
                    circle(1.5);
                 translate([0,-76])
                    circle(1.5);    
@@ -510,43 +459,49 @@ module roof() {
         }
 }
 
-
-crossbar_l=196;
-sleeve_l=36;
-
 module crossbar() {
-    rotate([0,90,0]) {
-        // top
-        difference() {
-            union() {
-                // sleeve
-                translate([0,0,(crossbar_l-sleeve_l)/2])
-                    linear_extrude(height=sleeve_l) 
-                        circle(3);
-                // pole
-                linear_extrude(height=crossbar_l) 
-                    circle(1.51);
-            }
-            // holes
-            rotate([0,90,0]) {
-                translate([-crossbar_l/2-13,0,-5])
-                    cylinder(4,1,1);
-                translate([-crossbar_l/2+13,0,-5])
-                    cylinder(4,1,1);
+    translate([0,0,20]) {
+        rotate([0,90,0]) {
+            // top
+            translate([-14.3,47.52,-94]) {
+                difference() {
+                    union() {
+                        // sleeve
+                        translate([0,0,76])
+                            linear_extrude(height=36) 
+                                circle(3);
+                        // top pole
+                        translate([0,0,64])
+                            linear_extrude(height=60) 
+                                circle(1.5);
+                        // bottom pole
+                        translate([33,12,-80])
+                            linear_extrude(height=360) 
+                                circle(1.5);
+                        
+                        translate([225,82,92.5])
+                            rotate([90,215,20])
+                                rotate_extrude(angle=70)
+                                    translate([250, 0]) 
+                                        circle(1);
+                    }
+                    // holes
+                    rotate([0,90,0]) {
+                        translate([-107,0,-5])
+                            cylinder(4,1,1);
+                        translate([-81,0,-5])
+                            cylinder(4,1,1);
+                    }
+                }
             }
         }
     }
 }
 
 module 20pole() {
-    translate([0,0,-13.5]) {
+    translate([0,0,-10])
         linear_extrude(height=170) 
             circle(frame_pole_r);  
-    
-        if (flag_stays)
-            translate([0,0,0.1]) 
-                stay();
-    }
 }
 
 module stay() {
@@ -576,19 +531,19 @@ module back_pole() {
         // pole holes            
         translate([0,-90,1.5]) {           
             translate([0,-3.3,7])
-                rotate([270+wing_attack_degrees,11,4])    
+                rotate([290,11,4])    
                     20pole();  
             translate([0,-3.3,13])
-                rotate([270+wing_attack_degrees,24,8.3])    
+                rotate([290,24,8.3])    
                     20pole(); 
             translate([0,-3.3,19])
-                rotate([270+wing_attack_degrees,36,12])    
+                rotate([290,36,12])    
                     20pole(); 
             translate([0,-3.3,25])
-                rotate([270+wing_attack_degrees,44,14])    
+                rotate([290,44,14])    
                     20pole();
             translate([0,-3.3,31])
-                rotate([270+wing_attack_degrees,52,15.8])    
+                rotate([290,52,15.8])    
                     20pole();
         }
     }
@@ -599,7 +554,7 @@ module front_pole() {
     union() {
         translate([0,60,0]) {
             difference() {
-                rotate([wing_attack_degrees,0,0])
+                rotate([20,0,0])
                     translate([0,-0.7,1.5]) {
                         // pole
                         linear_extrude(height=75) 
@@ -625,30 +580,39 @@ module front_pole() {
 
 module frame() {
     // wing supports   
-    translate([-wing_spread,0,0]) {
+    translate([-21,0,0]) {
         // front vertical pole
         front_pole();
         
         // 20 degrees pole
-        translate([0,-90, wing_lift+frame_pole_r])
-            rotate([270,0,0])
-                rotate([wing_attack_degrees,0,0])
-                    20pole(); 
+        translate([0,-3.3,wing_lift + 7])
+            translate([0,-90,1.5])
+                rotate([290,-11,-4]) {
+                    translate([0,0,-10]) {
+                        linear_extrude(height=170) 
+                            circle(frame_pole_r); 
+                        
+                        if (flag_stays)
+                            translate([0,0,0.1]) 
+                                stay();
+                    }
+            }
         
         // back vertical pole
         if (flag_back_pole) {    
             back_pole();
         }
     }
-    translate([wing_spread,0,0]) {
+    translate([21,0,0]) {
         front_pole();     
                     
         // 20 degrees pole
-        translate([0,-90, wing_lift+frame_pole_r])
-            rotate([270,0,0])
-                rotate([wing_attack_degrees,0,0])
+        translate([0,-3.3,wing_lift + 7])
+            translate([0,-90,1.5])
+                rotate([290,11,4]) {
                     20pole();                 
-           
+            }
+        
         // back vertical pole
         if (flag_back_pole) {    
             back_pole();
@@ -677,7 +641,7 @@ module plug() {
         // pole hole
         translate([2.5,92,1])  
             translate([0,-90,1.5])
-                rotate([270+wing_attack_degrees,-11,-4]) {
+                rotate([290,-11,-4]) {
                     linear_extrude(height=160) 
                         circle(frame_pole_r); 
                 }  
@@ -687,23 +651,25 @@ module plug() {
 
 // main starts here
 if (flag_plugs) {
-    if (flag_flatten) 
-        for (i = [0 : 1])
-            for (j = [0 : 2]) {
-                translate([i * 8.5, j * 7, 0]) {
-                    plug();   
-                
-                    // lugs
-                    if (i > 0)
-                        translate([-2.75,4,0.5])
-                            rotate([0,90,0])
-                                cylinder(2,0.5,0.5);
-                    if (j > 0)
-                        translate([1,0.5,0.5])
-                            rotate([90,0,0])
-                                cylinder(2,0.5,0.5);
+    translate([flag_flatten ? 23.5 : 0, flag_flatten ? 92 : 0, flag_flatten ? 1 : 0])
+        translate([-23.5,-92,-1]) {
+            for (i = [0 : 1])
+                for (j = [0 : 2]) {
+                    translate([i * 8.5, j * 7, 0]) {
+                        plug();   
+                    
+                        // lugs
+                        if (i > 0)
+                            translate([-2.75,4,0.5])
+                                rotate([0,90,0])
+                                    cylinder(2,0.5,0.5);
+                        if (j > 0)
+                            translate([1,0.5,0.5])
+                                rotate([90,0,0])
+                                    cylinder(2,0.5,0.5);
+                    }
                 }
-            }           
+        }
 
     if (!flag_flatten) {  
         translate([18.5,-92,-1]) {   
@@ -762,7 +728,7 @@ if (flag_flatten) {
             for (j = [0 : 1]) 
                 translate([i * 7, j * 7, 0]) {
                     translate([0,56,44])
-                        rotate([-180-wing_attack_degrees,0,0])
+                        rotate([-200,0,0])
                             difference() {
                                 front_pole();
                                 
@@ -771,7 +737,7 @@ if (flag_flatten) {
                                     translate([0,20*k,0])
                                         translate([0,-3.3,7])
                                             translate([0,-90,1.5])
-                                                rotate([270+wing_attack_degrees,11,4])
+                                                rotate([290,11,4])
                                                     20pole();
                             }
                                             
@@ -789,8 +755,8 @@ if (flag_flatten) {
     }
 }
 
-if (flag_wing_inner || flag_wing_outer || flag_drops) {
-    translate([-wing_spread-frame_pole_r,-90,flag_flatten ? 0 : wing_lift+frame_pole_r]) {   
+if (flag_wing_inner || flag_wing_outer || flag_drops || flag_tips) {
+    translate([-21,-90,flag_flatten ? 0 : wing_lift + frame_pole_r]) {   
         if (flag_flatten) {
             if (flag_drops) {
                 for (i = [0 : 1]) {
@@ -814,7 +780,7 @@ if (flag_wing_inner || flag_wing_outer || flag_drops) {
                 if (flag_wing_outer) {
                     difference() {
                         projection(cut=true) 
-                            translate([-wing_spread,90,3.4])
+                            translate([-21,90,3.4])
                                 rotate([0,12,0])                 
                                     translate([142,-68,12])
                                         wing(false);
@@ -822,24 +788,24 @@ if (flag_wing_inner || flag_wing_outer || flag_drops) {
                         union() {
                             difference() {
                                 projection(cut=true) 
-                                    translate([-wing_spread,90,3.66])
+                                    translate([-21,90,3.66])
                                         rotate([0,12,0])                 
                                             translate([142,-68,12])
                                                 wing(false);
                                 projection(cut=true) 
-                                    translate([-wing_spread,90,3.3])
+                                    translate([-21,90,3.3])
                                         rotate([0,12,0])                 
                                             translate([142,-68,12])
                                                 wing(false);
                             }
                             difference() {
                                 projection(cut=true) 
-                                    translate([-wing_spread,90,2.9])
+                                    translate([-21,90,2.9])
                                         rotate([0,12,0])                 
                                             translate([142,-68,12])
                                                 wing(false);
                                 projection(cut=true) 
-                                    translate([-wing_spread,90,3.3])
+                                    translate([-21,90,3.3])
                                         rotate([0,12,0])                 
                                             translate([142,-68,12])
                                                 wing(false);
@@ -849,20 +815,26 @@ if (flag_wing_inner || flag_wing_outer || flag_drops) {
                 }
             }
         } else {
-            rotate([wing_attack_degrees,0,0])
-                rotate([0,-wing_drop_degrees,0])  
+            translate([0,-3.3,7])
+                rotate([20,-11,-4]) {    
                     wing(false);
-                
+                }
         }
     }
     
     if (!flag_flatten) {
-        translate([wing_spread+frame_pole_r,-90, wing_lift+frame_pole_r]) {
-            rotate([wing_attack_degrees,0,0])
-                rotate([0,wing_drop_degrees,0]) 
+        translate([0,-3.3,7])
+            translate([21,-90, wing_lift + frame_pole_r]) {
+                rotate([20,11,4]) {    
                     wing(true);
-        }
+                }
+            }
     } 
+}
+
+if (flag_crossbar) {
+    translate([0,-7.5,18.5])
+        crossbar();
 }
 
 if (flag_floor) {
