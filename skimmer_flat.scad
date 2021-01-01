@@ -11,21 +11,21 @@ $fs=0.01;
 $fa=3;
 $fn=100;
 
-flag_floor=true;
-flag_roof=true;
-flag_frame=true;
-flag_stays=true;
-flag_wing_inner=true;
-flag_wing_outer=true;
-flag_drops=true;
-flag_crossbar=true;
-flag_plugs=true;
-flag_back_pole=true;
+flag_floor=false;
+flag_roof=false;
+flag_frame=false;
+flag_stays=false;
+flag_wing_inner=false;
+flag_wing_outer=false;
+flag_drops=false;
+flag_crossbar=false;
+flag_plugs=false;
+flag_back_pole=false;
 flag_front_pole=true;
 
-flag_engines=true;
+flag_engines=false;
 flag_battery=false;
-flag_flatten=false;
+flag_flatten=true;
 
 
 arm_l=75;
