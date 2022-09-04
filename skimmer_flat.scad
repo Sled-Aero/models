@@ -11,21 +11,21 @@ $fs=0.01;
 $fa=3;
 $fn=100;
 
-flag_floor=false;
-flag_roof=false;
-flag_frame=false;
-flag_stays=false;
-flag_wing_inner=false;
-flag_wing_outer=false;
-flag_drops=false;
-flag_crossbar=false;
-flag_plugs=false;
-flag_back_pole=false;
+flag_floor=true;
+flag_roof=true;
+flag_frame=true;
+flag_stays=true;
+flag_wing_inner=true;
+flag_wing_outer=true;
+flag_drops=true;
+flag_crossbar=true;
+flag_plugs=true;
+flag_back_pole=true;
 flag_front_pole=true;
 
-flag_engines=false;
-flag_battery=false;
-flag_flatten=true;
+flag_engines=true;
+flag_battery=true;
+flag_flatten=false;
 
 
 arm_l=75;
@@ -528,7 +528,7 @@ module front_pole() {
     union() {
         translate([0,60,0]) {
             difference() {
-                rotate([20,0,0])
+                rotate([20,0,0]) {
                     translate([0,-0.7,1.5]) {
                         // pole
                         linear_extrude(height=63) 
@@ -541,12 +541,28 @@ module front_pole() {
                         /* translate([0,0,-20])
                             linear_extrude(height=80) 
                                 circle(1); */
+                    }
+                }
+                    
+               // crossbar
+                rotate([20,0,0]) {
+                    translate([0,-0.7,1.5])
+                        rotate([90,0,270])
+                            translate([0,42.7,-88])
+                            linear_extrude(height=188) 
+                                circle(1.5);
                         }
                 
                 // clip end of pole        
                 translate([0,-1.5,0]) {
-                    cylinder(3,5,5);
-                }    
+                    cylinder(3,5,5);             
+             
+//                // crossbar
+//                rotate([90,0,270])
+//                    translate([0,70,-88])
+//                    linear_extrude(height=188) 
+//                        circle(1.5);
+                }
             }
         }           
     }
@@ -562,10 +578,9 @@ module frame() {
         translate([0,-3.3,7])
             translate([0,-90,1.5])
                 rotate([290,-11,-4]) {
-                    translate([0,0,-10]) {
-                        linear_extrude(height=170) 
-                            circle(frame_pole_r); 
-                        
+                    20pole(); 
+                    
+                    translate([0,0,-10]) {                        
                         if (flag_stays)
                             translate([0,0,0.1]) 
                                 stay();
@@ -707,12 +722,10 @@ if (flag_flatten) {
                                 front_pole();
                                 
                                 // 20 degrees pole
-                                for (k = [0 : 6])
-                                    translate([0,20*k,0])
-                                        translate([0,-3.3,7])
-                                            translate([0,-90,1.5])
-                                                rotate([290,11,4])
-                                                    20pole();
+                                translate([0,-3.3,7])
+                                    translate([0,-90,1.5])
+                                        rotate([290,11,4])
+                                            20pole();
                             }
                                             
                     // lugs

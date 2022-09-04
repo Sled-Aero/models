@@ -83,12 +83,13 @@ module arm() {
 }
 
 
-wing_l=160;
+wing_l=155;
+wing_lw=0;
+wing_l1=150;
+wing_l2=50;
 wing_wf=50;
 wing_wb=15;
 wing_w2=74;
-wing_l1=150;
-wing_l2=50;
 
 // calculate rotation of outer wing
 vert=(wing_wf-wing_wb) * sin(wing_camber_degrees);
@@ -111,7 +112,7 @@ module wing(flip) {
                         if (flag_wing_inner)
                             difference() {
                                 linear_extrude(height=wing_h, twist=0, scale=1)
-                                    polygon([[-wing_wf,0],[0,0],[0,-wing_l],[-10,-wing_l],[-wing_wb,-wing_l1]]);
+                                    polygon([[-wing_wf,0],[0,0],[0,-wing_l],[-wing_lw,-wing_l],[-wing_wb,-wing_l1]]);
                             }
                          
                         if (flag_wing_outer)    
