@@ -49,7 +49,7 @@ difference() {
     linear_extrude(height=copter_w)
     //extrudeWithRadius(copter_w, 5, 5, 80)
       rounding(r=6)
-        polygon(points=slice(concat(bzpoints(b1), bzpoints(b2), bzpoints(b3), bzpoints(b4), bzpoints(b5)), 0, -1));
+        polygon(points=concat(bzpoints(b1), bzpoints(b2), bzpoints(b3), bzpoints(b4), bzpoints(b5))));
 
     // notch
     union() {
