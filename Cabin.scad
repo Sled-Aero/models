@@ -47,13 +47,15 @@ b1 = [[0,0], [50,66], [-24,60], [-10,70], [0,0]];
 //polygon(points=bzpoints(b1)); 
 
 difference() {
-translate([0,-4,0])
-  rotate([-10,-90,0])
+  translate([0,-4,0])
+    rotate([-10,-90,0])
       rotate_extrude() 
         polygon(points=positive(bzpoints(b1))); 
   
   translate([-120,-120,-60])
-                cube([120,120,100]);
-            }    
-          }
+    cube([120,120,100]);
+  }    
+}
+
+egg2();
 

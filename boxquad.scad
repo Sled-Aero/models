@@ -10,13 +10,14 @@ use <lib/BOSL/math.scad>
 use <lib/Round-Anything/polyround.scad>
 use <utils/morphology.scad> 
 
-use <Cabin.scad>
+use <cabin.scad>
+use <cabin2.scad>
 
 $fs=0.01;
 $fa=3;
 $fn=100;
 
-NACA = 2432;
+NACA = 2412;
 ATTACK = 15;
 THICKEN = 40;
 
@@ -31,7 +32,7 @@ function bzpoints(bezier) = (
 function gen_dat(X, R=0, N=100) = [for(i=[0:len(X)-1])
     let(x=X[i])  // get row
     let(v2 = airfoil_data(naca=NACA, L=x[0], N=N))
-    let(v3 = T_(x[1], x[2], x[3], R_(0, R+90, x[5], R_(0, 0, x[4],vec3D(v2)))) )   // rotate and translate
+    let(v3 = T_(x[1], x[2], x[3], R_(0, R+90, x[5], R_(0, 0, x[4], vec3D(v2)))) )   // rotate and translate
      v3];
 
 //trace_bezier(bez, N=len(bez)-1); 
@@ -43,14 +44,15 @@ function gen_dat(X, R=0, N=100) = [for(i=[0:len(X)-1])
 //             last dimension describes rotation of airfoil
 
 X = [ // L, dx, dy, dz, R
-      [28, 0,  54, 80, -ATTACK, 0],
-      [25, 70,  54, 80, -ATTACK, 0],
+      [40, 0,  54, 80, -ATTACK, 0],
+      [27, 70,  54, 80, -ATTACK, 0],
       [20, 100,  54, 80, -ATTACK, 0],
-      [10, 120,  52, 77, -ATTACK, -THICKEN/2], 
-      [15, 130, 40, 60, 0, -THICKEN],  
+      [10, 120,  52, 80, -ATTACK, -THICKEN/2], 
+      [10, 130, 40, 79, 0, -THICKEN],
+      [12, 132,  10, 68, 0, -THICKEN],  
       [25, 128,  -5, 20, 0, -THICKEN],  
-      [30, 100,  -14, 3, -ATTACK, -THICKEN/2],
-      [29,   0,  -15, -3, -ATTACK, 0]
+      [27, 110,  -14, 3, -ATTACK, -THICKEN/2],
+      [29,   0,  -19, -3, -ATTACK, 0]
    ];
 Xs = nSpline(X, 150);   // interpolate wing data
 
@@ -65,29 +67,50 @@ linear_extrude(height = 100, twist = 0, scale = 1)
 polygon(points = vec2D(q));
 */
 
+module prop() {
+  translate([120,48,84]) {
+    rotate([0,90,0])
+      cylinder(6,6,6);
+    translate([3,0,-9]) {
+      translate([0,0,-2])
+        cylinder(10,3,3);
+      cylinder(2,30,30);
+    }
+  }
+} 
+
 
 // front wing
 translate([0,0,0]) {
   sweep(gen_dat(Xs,0,100));
-  mirror([1, 0, 0])  
+  prop();
+  mirror([1, 0, 0]) {
     sweep(gen_dat(Xs,0,100));
+    prop();
+  }
 }
 
 
 // back wing
-translate([0,0,275]) {
+translate([0,0,280]) {
   rotate([0,180,0]) {
     sweep(gen_dat(Xs,180,100));
-    mirror([1, 0, 0])  
+    translate([0,0,0])
+      prop();
+    mirror([1, 0, 0]) {
       sweep(gen_dat(Xs,180,100));
+      translate([0,0,0])
+        prop();
+    }
   }
 }
 
 // cabin
-translate([0,50,260])
-  rotate([0,270,0])
-    scale([3.5,3,2.5])
-      egg2();
+//translate([0,47,75])
+translate([0,44,66])
+  rotate([0,85,90])
+    scale([1,1,1])
+      cabin();
 
 /*
 // body
