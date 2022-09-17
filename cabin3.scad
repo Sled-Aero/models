@@ -7,11 +7,13 @@ use <lib/BOSL/beziers.scad>
 use <lib/BOSL/paths.scad>
 use <lib/BOSL/math.scad>
 
+/*
 use <lib/dotSCAD/src/path_extrude.scad>
 
 include <lib/BOSL2/std.scad>
 include <lib/BOSL2/skin.scad>
 include <lib/BOSL2/rounding.scad>
+*/
 
 $fs=0.01;
 $fa=3;
@@ -21,7 +23,7 @@ copter_l = 300;
 copter_w = 100;
 copter_h = 95;
 spar_w = 10;
-spar_h = 10;
+spar_h = 12;
 cabin_l=200;
 
 back_h = 10;
@@ -67,26 +69,58 @@ path2=bzpoints(concat(b5,b2,b3,b4));
 
 //path_extrude(shape, path2, method = "NO_ANGLE");
 
-intersection() {
-//union() {
-//path_sweep(circle(3), path);
+module tri_cabin() {
+translate([-7,0,-50])
+  intersection() {
+  //union() {
+  //path_sweep(circle(3), path);
 
-translate([0,0,-3])
-  linear_extrude(106)
-    polygon(path);
+  translate([0,0,-3])
+    linear_extrude(106)
+      polygon(path);
 
-//linear_extrude(100)
-//shell2d(3)
-//  polygon(path);
-  
-//translate([0,0,100])
-  //path_sweep(circle(3), path);  
-//
+  //linear_extrude(100)
+  //shell2d(3)
+  //  polygon(path);
+    
+  //translate([0,0,100])
+    //path_sweep(circle(3), path);  
+  //
 
-translate([0,50,50])  
-  rotate([0,90,0])
-    cylinder(300,50,50);  
-    }
+  translate([0,47.5,50])  
+    scale([1,1.5,1])
+    rotate([0,90,0])
+      cylinder(300,50,50);  
+  }
+}
+//tri_cabin();
+
+
+module quad_cabin() {
+translate([-7,0,-50])
+  intersection() {
+  //union() {
+  //path_sweep(circle(3), path);
+
+  translate([0,0,-3])
+    linear_extrude(106)
+      polygon(path);
+
+  //linear_extrude(100)
+  //shell2d(3)
+  //  polygon(path);
+    
+  //translate([0,0,100])
+    //path_sweep(circle(3), path);  
+  //
+
+  translate([0,47,50])  
+    scale([1,1,1])
+    rotate([0,90,0])
+      cylinder(300,52,48);  
+  }
+}
+quad_cabin();
     
 
 //path_extrude(shape, bzpoints(b1), method = "EULER_ANGLE");
