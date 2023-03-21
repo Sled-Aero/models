@@ -7,9 +7,9 @@ use <lib/BOSL/beziers.scad>
 use <lib/BOSL/paths.scad>
 use <lib/BOSL/math.scad>
 
-/*
-use <lib/dotSCAD/src/path_extrude.scad>
 
+use <lib/dotSCAD/src/path_extrude.scad>
+/*
 include <lib/BOSL2/std.scad>
 include <lib/BOSL2/skin.scad>
 include <lib/BOSL2/rounding.scad>
@@ -46,12 +46,11 @@ function circle_points(r, fn=32) = [for(i=[0:fn-1])
   [r*cos(360*i/fn),r*sin(360*i/fn)]
 ];
 
-function fpath(len, seg=12) = (
-  let(b3=[[len,copter_h], [len+seg,copter_h-seg/2], [len,copter_h-seg]])
-  let(b5=[[len,copter_h-seg], [200,copter_h-spar_h], [150,copter_h-spar_h], [cabin_l,-10], [175,0], [150,0], [125,0], [100,0], [75,0], [50,0], [25,0], [0,0], [-25,0], [-30,20], [10,copter_h], [70,copter_h], [cabin_l,copter_h], [len,copter_h]])
-  
-  concat(bzpoints(b5), bzpoints(b3))
+function fpath(l, h, seg=12) = (
+  let(b=[[l,copter_h/5], [l-50,-15], [125,0], [100,0], [75,0], [50,0], [25,0], [0,0], [-25,0], [-30,50], [10,h], [70,h-30], [100,h], [l-50,h-50], [l,h/5]])
+  concat(bzpoints(b))
 );
+
 //path2=bzpoints(concat(b5,b2,b3,b4));
 
 //rounding(r=7)
@@ -61,52 +60,54 @@ function fpath(len, seg=12) = (
 //translate([5,5,0])
 //  circle(5);
 
-//shape = circle_points(2.5);
-//trace_bezier(p, N=len(p)-1);
 
-//path_extrude(shape, path2, method = "NO_ANGLE");
-
-module tri_cabin(len, tail) {
-  difference() {
-    translate([-7,0,-50]) {
-      intersection() {
-      //path_sweep(circle(3), path);
-
-      translate([0,0,-30])
-        linear_extrude(160)
-          polygon(fpath(len, tail));
-
-      //linear_extrude(100)
-      //shell2d(3)
-      //  polygon(path);
-        
-      //translate([0,0,100])
-        //path_sweep(circle(3), path);  
-      //
-
-      translate([6,5,50])  
-        scale([1,1.5,1.1])
-          rotate([0,90,17.5])
-            cylinder(len,43,70);  
-      
-      
-      // uncomment if you want a narrower cabin
-      /*
-      translate([6,5,50])  
-        scale([1,1.5,1.1])
-          rotate([0,90,12])
-            cylinder(len,43,70); */
-      }
+module qtr_hoop(r,h,w) {
+  rotate([90,0,0])
+    translate([0,w/2,h/2]) {
+      rotate([90,0,90])
+        rotate_extrude(angle=90, convexity=10)
+          translate([r,0,0])
+            circle(r=2.5, $fn=100);
+            
+      translate([0,r,-h/2])
+        linear_extrude(h/2)   
+          circle(r=2.5, $fn=100);
           
+      translate([0,0,r])
+        rotate([90,0,0])
+          linear_extrude(w/2)   
+            circle(r=2.5, $fn=100);    
     }
-    
-    translate([250,30,0]) {
-      rotate([0,90,90])
-        cylinder(70,60.5,60.5);
-    }
+}
+
+module hoop(r,h,w) {
+  qtr_hoop(r,h,w);
+  mirror([0,0,1])    
+    qtr_hoop(r,h,w);
+  rotate([180,180,0]) {
+    qtr_hoop(r,h,w);
+    mirror([0,0,1])    
+      qtr_hoop(r,h,w);
   }
 }
-//tri_cabin(325,12);
+
+width = 20;
+
+translate([235,30,0]) hoop(15,10,width/2);
+translate([190,35,0]) hoop(25,20,width/2);
+translate([145,40,0]) hoop(30,20,width/2);
+translate([100,43,0]) hoop(33,20,width/2);
+translate([55,40,0])  hoop(30,20,width/2);
+translate([10,38,0])  hoop(15,10,width/2);  
+        
+
+//shape = circle_points(2.5);
+//p = fpath(200);
+//trace_bezier(p, N=len(p)-1);
+translate([0,5,width])
+  path_extrude(circle_points(2.5), fpath(280,105), method = "EULER_ANGLE");
+translate([0,5,-width])
+  path_extrude(circle_points(2.5), fpath(280,105), method = "EULER_ANGLE");  
 
 
 module quad_cabin(len, tail) {
@@ -133,7 +134,7 @@ module quad_cabin(len, tail) {
         cylinder(copter_l+20,52,40);  
   }
 }
-quad_cabin(230,5);
+//quad_cabin(230,5);
     
 
 //path_extrude(shape, bzpoints(b1), method = "EULER_ANGLE");

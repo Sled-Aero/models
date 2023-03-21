@@ -1,3 +1,7 @@
+use <lib/ShortCuts.scad>  // see: http://www.thingiverse.com/thing:644830
+use <lib/Naca4.scad>
+ 
+
 use <lib/Round-Anything/polyround.scad>
 use <utils/morphology.scad> 
 use <lib/thing_libutils/Naca_sweep.scad>
@@ -6,6 +10,21 @@ use <lib/BOSL/constants.scad>
 use <lib/BOSL/beziers.scad>
 use <lib/BOSL/paths.scad>
 use <lib/BOSL/math.scad>
+
+ 
+
+/*
+T(50, 30, 0)
+scale([1, 2])
+rotate_extrude()
+Rz(90)
+difference()
+{
+  polygon(points = airfoil_data(30)); 
+  square(100, 100); 
+}*/
+
+
 
 /*
 use <lib/dotSCAD/src/path_extrude.scad>
@@ -17,14 +36,12 @@ include <lib/BOSL2/rounding.scad>
 
 $fs=0.01;
 $fa=3;
-$fn=100;
+$fn=150;
   
 copter_l = 310;
 copter_w = 100;
-copter_h = 95;
-spar_w = 10;
-spar_h = 12;
-cabin_l=200;
+copter_h = 115;
+cabin_l=300;
 
 back_h = 10;
 front_h = 17;
@@ -47,10 +64,9 @@ function circle_points(r, fn=32) = [for(i=[0:fn-1])
 ];
 
 function fpath(len, seg=12) = (
-  let(b3=[[len,copter_h], [len+seg,copter_h-seg/2], [len,copter_h-seg]])
-  let(b5=[[len,copter_h-seg], [200,copter_h-spar_h], [150,copter_h-spar_h], [cabin_l,-10], [175,0], [150,0], [125,0], [100,0], [75,0], [50,0], [25,0], [0,0], [-25,0], [-30,20], [10,copter_h], [70,copter_h], [cabin_l,copter_h], [len,copter_h]])
+  let(b3=[[cabin_l,copter_h/5], [cabin_l-50,-15], [125,0], [100,0], [75,0], [50,0], [25,0], [0,0], [-25,0], [-30,50], [10,copter_h], [70,copter_h], [cabin_l-50,copter_h-50], [cabin_l,copter_h/5]])
   
-  concat(bzpoints(b5), bzpoints(b3))
+  concat(bzpoints(b3))
 );
 //path2=bzpoints(concat(b5,b2,b3,b4));
 
@@ -70,34 +86,17 @@ module tri_cabin(len, tail) {
   difference() {
     translate([-7,0,-50]) {
       intersection() {
-      //path_sweep(circle(3), path);
 
       translate([0,0,-30])
         linear_extrude(160)
           polygon(fpath(len, tail));
 
-      //linear_extrude(100)
-      //shell2d(3)
-      //  polygon(path);
-        
-      //translate([0,0,100])
-        //path_sweep(circle(3), path);  
-      //
-
       translate([6,5,50])  
         scale([1,1.5,1.1])
           rotate([0,90,17.5])
             cylinder(len,43,70);  
-      
-      
-      // uncomment if you want a narrower cabin
-      /*
-      translate([6,5,50])  
-        scale([1,1.5,1.1])
-          rotate([0,90,12])
-            cylinder(len,43,70); */
-      }
-          
+
+      }        
     }
     
     translate([250,30,0]) {
@@ -106,34 +105,56 @@ module tri_cabin(len, tail) {
     }
   }
 }
+
 //tri_cabin(325,12);
 
 
 module quad_cabin(len, tail) {
   translate([-7,0,-50])
-    intersection() {
-    //union() {
-    //path_sweep(circle(3), path);
+    difference() {
+      intersection() {
+        translate([0,50,-3])
+          rotate([0,0,-8])
+           airfoil(naca=2432, L=len+50, N=300, h=106, open = false);
+      /*
+        translate([0,0,-3])
+          linear_extrude(106)
+            polygon(fpath(len, tail)); */
 
-    translate([0,0,-3])
-      linear_extrude(106)
-        polygon(fpath(len, tail));
-
-    //linear_extrude(100)
-    //shell2d(3)
-    //  polygon(path);
-      
-    //translate([0,0,100])
-      //path_sweep(circle(3), path);  
-    //
-
-    translate([0,47,50])  
-      scale([1,1.3,1])
-      rotate([0,90,-1])
-        cylinder(copter_l+20,52,40);  
-  }
+//        translate([-10,48,50]) {
+//          rotate([0,90,-3.1]) {
+//            scale([1,1.2,1])
+//              cylinder(copter_l+20,50,30);  
+//          }
+//        }
+        translate([-90,54,50]) {
+          rotate([0,90,-3.1]) {
+            scale([3.5,3.5,7])
+              rotate_extrude()
+                rotate([0,0,90])
+                  difference() {
+                    polygon(points = airfoil_data(30)); 
+                    square(100, 100); 
+                  }
+          }
+        }
+      }
+      translate([0,-62,20])
+        rotate([0,0,0])
+          cube([300,60,60]);
+    }
+    
+//    rotate([0,90,0])
+//      scale([2, 3, 7])
+//        rotate_extrude()
+//          rotate([0,0,90])
+//            difference() {
+//              polygon(points = airfoil_data(30)); 
+//              square(100, 100); 
+//            }
 }
-quad_cabin(230,5);
+
+quad_cabin(250,5);
     
 
 //path_extrude(shape, bzpoints(b1), method = "EULER_ANGLE");

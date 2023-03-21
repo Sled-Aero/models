@@ -20,7 +20,7 @@ $fs=0.01;
 $fa=3;
 $fn=64;
 
-NACA = 2422;
+NACA = 2412;
 ATTACK = 15;
 THICKEN = 40;
 
@@ -41,71 +41,75 @@ function gen_dat(X, R=0, N=100) = [for(i=[0:len(X)-1])
 //trace_bezier(bez, N=len(bez)-1); 
 //trace_polyline(bezier_polyline(bez3, N=len(bez3)-1, splinesteps=100), size=1);
 
-
-module wing(h, orientation) {
+module wing(h, l, orientation) {
   // wing data - first dimension selects airfoil
   //             next 3 dimensions describe xyz offsets
   //             last dimension describes rotation of airfoil
   X = [ // L, dx, dy, dz, R
-      [35, 0.01,  h, 80, -ATTACK, 0],
-      [27, 80,  h, 80, -ATTACK, 0],
-      [18, 95,  h, 80, -ATTACK, 0],
-      [10, 120,  h, 80, -ATTACK, -THICKEN/2], 
-      [12, 130, h-10, 80, 0, -THICKEN],
-      [15, 132,  10, 75, 0, -THICKEN],  
-      [30, 128,  -5, 20, 0, -THICKEN],  
-      [28, 110,  -14, 3, -ATTACK, -THICKEN/2],
-      [26,   0.01,  -21, -3, -ATTACK, 0]
+      [25, 20, h+3,  l-15,    -ATTACK, 0],
+      [25, 105,  h+10,    l,    -ATTACK, 0],
+      [20, 122,  h-8,  l*0.9,    -ATTACK, -THICKEN/2], 
+      [16, 126,  h/2+10,   0,   0,       -THICKEN],
+      [18, 124,  0,    0,   0,       -THICKEN],  
+      [27, 100,  -14,  0,   -ATTACK, -THICKEN/2],
+      [30, 0.001, -20,  0,   -ATTACK, 0]
    ];
   Xs = nSpline(X, 150); // interpolate wing data
   sweep(gen_dat(Xs,orientation,100));
 }
 
 module front_wing() {
-  wing(60, 0);
+  wing(70, 120, 0);
   mirror([1, 0, 0]) {
-    wing(60, 0);
+    wing(70, 120, 0);
   }
 }
 
 module back_wing() {
-  rotate([0,180,0])
-    wing(132, 180);
+  wing(95, 0, 0);
   mirror([1, 0, 0]) {
-    rotate([0,180,0])
-    wing(132, 180);
-  }  
+    wing(95, 0, 0);
+   }
 }
 
-module prop(r) {
-  translate([121,58,85]) {
-    rotate([0,90,0])
+module prop(r, offset=0) {
+  translate([92-offset,57,85]) {
+    rotate([0,90,0]) {
       cylinder(6,6,6);
+      translate([0,0,-70])
+        cylinder(80,4,4);
+    }  
     translate([3,0,-12]) {
       translate([0,0,-4])
-        cylinder(10,3,3);
+        cylinder(12,3,3);
       cylinder(2,r,r);
     }
   }
 } 
 
-translate([0,30,0]) {
+translate([0,67,25]) {
   front_wing();
-  prop(45);
-  mirror([1, 0, 0])
-    prop(45);
 }
-translate([0,30,320]) {
+
+translate([0,67,292]) {
   back_wing();
 }
-translate([0,100,160]) {
-  prop(45);
-  mirror([1, 0, 0])
-    prop(45);
-}
+
 translate([0,70,70]) {
   rotate([0,270,0]) {
-    quad_cabin(240, 4);
+    quad_cabin(238, 8);
+  }
+  
+  translate([0,27,85]) {
+    prop(45,7);
+    mirror([1, 0, 0])
+      prop(45,7);
+  }
+  
+  translate([0,-45,-50]) {
+    prop(45);
+    mirror([1, 0, 0])
+      prop(45);
   }
 }
   

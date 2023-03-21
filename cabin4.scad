@@ -1,6 +1,7 @@
 use <lib/Round-Anything/polyround.scad>
 use <utils/morphology.scad> 
 use <lib/thing_libutils/Naca_sweep.scad>
+use <lib/thing_libutils/Naca4.scad>
 
 use <lib/BOSL/constants.scad>
 use <lib/BOSL/beziers.scad>
@@ -17,9 +18,9 @@ include <lib/BOSL2/rounding.scad>
 
 $fs=0.01;
 $fa=3;
-$fn=100;
+$fn=200;
   
-copter_l = 310;
+copter_l = 270;
 copter_w = 100;
 copter_h = 95;
 spar_w = 10;
@@ -110,14 +111,15 @@ module tri_cabin(len, tail) {
 
 
 module quad_cabin(len, tail) {
-  translate([-7,0,-50])
+  translate([-10,10,-50])
     intersection() {
     //union() {
     //path_sweep(circle(3), path);
 
-    translate([0,0,-3])
-      linear_extrude(106)
-        polygon(fpath(len, tail));
+    translate([12,30,-5])
+      rotate([0,0,-9])
+      linear_extrude(110)
+        polygon(airfoil_data(naca=2442, L=copter_l, N=400));
 
     //linear_extrude(100)
     //shell2d(3)
@@ -127,10 +129,11 @@ module quad_cabin(len, tail) {
       //path_sweep(circle(3), path);  
     //
 
-    translate([0,47,50])  
+    
+    translate([0,22,50])  
       scale([1,1.3,1])
       rotate([0,90,-1])
-        cylinder(copter_l+20,52,40);  
+        cylinder(copter_l+20,54,40);  
   }
 }
 quad_cabin(230,5);
