@@ -44,8 +44,8 @@ module fwing(w, orientation=0) {
   X = [//L,  dx,      dy,  dz,    R
       [54,   w*120,   0,   l-5,   -ATTACK,  0],  
       [54,   w*70,    0,   l-5,   -ATTACK,  0],
-      [54,   w*8,  0,     l-5,   -ATTACK,  0],
-      [54,    w*0.1,   0,  l-5, -ATTACK,  0]
+      [54,   w*8,     0,   l-5,   -ATTACK,  0],
+      [54,   w*0.1,   0,   l-5, -ATTACK,  0]
   ];
   Xs = nSpline(X, 150); // interpolate wing data
   
@@ -102,9 +102,8 @@ module aframe(w, orientation=0) {
   //             last dimension describes rotation of airfoil
   l = 30;
   X = [//L, dx,   dy,  dz,    R
-      [20,  -12,   7.5,   l+25,  0,  0],
-      [40,  -8,   5.5,   l+15,  0,  0],
-      [45,  -2,    2,   l+8,  0,  0],  
+      [5,  -8,   4.5,   l+23,  0,  0],
+      [25,  -2,    1.5,   l+10,  0,  0],  
       [20,  20,   -7,   l+3,  0,  0],
       [10,  100,  0,   l+35,  0,  0],
       [5,   112,  0,   l+50,  0,  0]
@@ -120,7 +119,7 @@ module back_wing(l, rot) {
     
     translate([0,-96,-280])
       rotate([0,270,0]) {
-        translate([220,30,18])
+        translate([220,30,19])
           rotate([90,-30,70])
             aframe(1); 
       }
@@ -134,7 +133,7 @@ module back_wing(l, rot) {
       
       translate([0,-96,-280])
         rotate([0,270,0]) {
-          translate([220,30,18])
+          translate([220,30,19])
             rotate([90,-30,70])
               aframe(1); 
         }
@@ -143,9 +142,9 @@ module back_wing(l, rot) {
         prop(60,1);
     }
   
-    translate([-21,-78,-13])
+    translate([-22,-78,-13])
       rotate([0,90,0])
-        cylinder(42,5,5);
+        cylinder(44,5,5);
   }
 }
 
@@ -194,9 +193,9 @@ module naca_pole(h,w=12) {
 rotate([0,90,0]) {
   translate([0,32,0]) {
     union() {
-//      rotate([0,270,0]) {
-//        quad_cabin(250,1.1,1,0.8);          
-//      }
+      rotate([0,270,0]) {
+        quad_cabin(250,1.1,1,0.8);          
+      }
       
       translate([0,-11,10]) {
         front_wing(1,0);
