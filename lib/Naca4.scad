@@ -21,7 +21,7 @@ module help_Naca4()
   "module help_Naca() - displays this help\n",
   "module help_Naca4() - displays this help\n",
   "module airfoil(naca=2412, L = 100, N = 81, h = 1, open = false) - renders airfoil object\n", 
-  "module airfoil(naca=[.2, .4, .12], L = 100, N = 81, h = 1, open = false) - renders airfoil object using percentage for camber,  camber distance and thicknes\n", 
+  "module airfoil(naca=[.2, .4, .12], L = 100, N = 81, h = 1, open = false) - renders airfoil object using percentage for camber,  camber distance and thickness\n", 
   "function airfoil_data(naca=12, L = 100, N = 81, open = false)\n",
   "=================\n")); 
 }
@@ -38,7 +38,8 @@ module airfoil(naca=12, L = 100, N = 81, h = 1, open = false)
 
 // this is the main function providing the airfoil data
 function airfoil_data(naca=12, L = 100, N = 81, open = false) = 
-  let(Na = len(naca)!=3?NACA(naca):naca)
+  //let(Na = len(naca)!=3?NACA(naca):naca)
+  let(Na = is_num(naca) ? NACA(naca) : naca)
   let(A = [.2969, -0.126, -.3516, .2843, open?-0.1015:-0.1036])
   [for (b=[-180:360/(N):179.99]) 
     let (x = (1-cos(b))/2)  

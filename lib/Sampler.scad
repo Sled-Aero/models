@@ -16,6 +16,7 @@ place_in_rect(110, 70) // arange that stuff in a grid
   polygon(points = airfoil_data([-.1, .4, .1], L=100)); 
 
 // drop
+
 T(50, 30, 0)
 scale([1, 2])
 rotate_extrude()
@@ -25,6 +26,9 @@ difference()
   polygon(points = airfoil_data(30)); 
   square(100, 100); 
 }
+
+//T(30)
+ airfoil(naca = 2432, L = 60, N=101, h = 30, open = false);
 
 // some winding airfoils
 linear_extrude(height = 100, twist = 30, scale = .5)
@@ -40,8 +44,9 @@ linear_extrude(height = 100, twist = 30, scale = .5)
 translate([-100, 0, 0])
   polygon(points = airfoil_data(30)); 
 
+ 
 T(30)
- airfoil(naca = 2432, L = 60, N=101, h = 30, open = false); 
+ airfoil(naca = 2432, L = 60, N=101, h = 30, open = false);
 
 // some airfoil objects, Naca values defined with number or vector
  airfoil ();                  // NACA12 object 
