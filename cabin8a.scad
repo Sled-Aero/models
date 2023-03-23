@@ -251,8 +251,8 @@ module quad_cabin_shell(len, l=1,h=1,w=1) {
   scale([l,h,w])
   translate([-19,0,0])
     rotate([180,0,0]) {
-      body_shell(len);
-//      color("grey") { translate([0,-0.3,0]) hatch_shell(len); }
+//      body_shell(len);
+      color("grey") { translate([0,-0.3,0]) hatch_shell(len); }
     }
     
 //  translate([140,-31.2,20])

@@ -22,6 +22,10 @@ $fn=200;
 
 NACA = 2414;
 ATTACK = 8;
+BW = 125;
+BL = 1800 / BW * 5;
+FW = BW-30;
+FL = 1200 / FW * 5;
 
 module rotate_about_pt(rot, x, y, z) {
   translate([x,y,z])
@@ -42,7 +46,7 @@ module fwing(w, orientation=0) {
   //             last dimension describes rotation of airfoil
   l = 25;
   X = [//L,  dx,      dy,  dz,    R
-      [54,   w*120,   0,   l-5,   -ATTACK,  0],  
+      [54,   w*FW,    0,   l-5,   -ATTACK,  0],  
       [54,   w*70,    0,   l-5,   -ATTACK,  0],
       [54,   w*8,     0,   l-5,   -ATTACK,  0],
       [54,   w*0.1,   0,   l-5, -ATTACK,  0]
@@ -62,20 +66,20 @@ module front_wing(l, rot=0) {
   translate([0,3,15]) {
     rotate_about_pt([rot,0,0],0,0,0) {
       rotate([0,90,0])
-        cylinder(150,2.5,2.5);
+        cylinder(FW,2.5,2.5);
       translate([29,0.3,-25.3])  
         fwing(l, 0);  
-      translate([150,-2,-11])
+      translate([BW,-2,-11])
         prop(60,1);
     }
   
     mirror([1, 0, 0]) {  
       rotate_about_pt([rot,0,0],0,0,0) {
         rotate([0,90,0])
-          cylinder(150,2.5,2.5);
+          cylinder(FW,2.5,2.5);
         translate([29,0.3,-25.3])  
           fwing(l, 0);  
-        translate([150,-2,-11])
+        translate([BW,-2,-11])
           prop(60,1);
       }
     }
@@ -88,9 +92,9 @@ module bwing(w, orientation=0) {
   //             last dimension describes rotation of airfoil
   l = 25;
   X = [//L,  dx,     dy,   dz,    R
-      [60,   w*150,  0,   l-5,   -ATTACK,  0],  
-      [60,   w*100,  0,   l-5,   -ATTACK,  0],
-      [60,   0.005,    0,   l-5,  -ATTACK,  0]
+      [BL,   w*BW,  0,   l-5,   -ATTACK,  0],  
+      [BL,   w*100,  0,   l-5,   -ATTACK,  0],
+      [BL,   0.005,    0,   l-5,  -ATTACK,  0]
   ];
   Xs = nSpline(X, 150); // interpolate wing data
   sweep(gen_dat(Xs,orientation,100));
@@ -103,10 +107,10 @@ module aframe(w, orientation=0) {
   l = 30;
   X = [//L, dx,   dy,  dz,    R
       [5,  -8,   4.5,   l+23,  0,  0],
-      [25,  -2,    1.5,   l+10,  0,  0],  
-      [20,  20,   -7,   l+3,  0,  0],
-      [10,  100,  0,   l+35,  0,  0],
-      [5,   112,  0,   l+50,  0,  0]
+      [25,  -2,    0,   l+10,  0,  0],  
+      [20,  20,   -10,   l+3,  0,  0],
+      [10,  100,  -13,   l+35,  0,  0],
+      [5,   109,  -13,   l+54,  0,  0]
   ];
   Xs = nSpline(X, 150); // interpolate wing data
   sweep(gen_dat(Xs,orientation,100));
@@ -119,12 +123,12 @@ module back_wing(l, rot) {
     
     translate([0,-96,-280])
       rotate([0,270,0]) {
-        translate([220,30,19])
+        translate([220,30,18])
           rotate([90,-30,70])
             aframe(1); 
       }
             
-    translate([150,-2,11])
+    translate([BW,-4,11])
       prop(60,1);
   
     mirror([1, 0, 0]) {
@@ -133,18 +137,18 @@ module back_wing(l, rot) {
       
       translate([0,-96,-280])
         rotate([0,270,0]) {
-          translate([220,30,19])
+          translate([220,30,18])
             rotate([90,-30,70])
               aframe(1); 
         }
       
-      translate([150,-2,11])
+      translate([BW,-4,11])
         prop(60,1);
     }
   
-    translate([-22,-78,-13])
+    translate([-19.5,-78,-13])
       rotate([0,90,0])
-        cylinder(44,5,5);
+        cylinder(39,5,5);
   }
 }
 
@@ -172,8 +176,8 @@ module prop(r,d=1) {
   }
   
   difference() {
-    drop(0.3,0.7,d);
-    translate([-10,-10,80*d])
+    drop(0.3,0.7,1.2*d);
+    translate([-10,-10,(12+BL)*d])
       cube([20,20,40]);
   }
 } 
@@ -198,11 +202,11 @@ rotate([0,90,0]) {
       }
       
       translate([0,-11,10]) {
-        front_wing(1,90);
+        front_wing(1,0);
       }
       
       translate([0,105,303]) {
-        back_wing(1,90);
+        back_wing(1,0);
       }
     }
   }
