@@ -168,7 +168,7 @@ module prop(r,d=1) {
   translate([0,0,-1]) {
     translate([0,0,-4])
       cylinder(12,3,3);
-    cylinder(2,r,r);
+    //cylinder(2,r,r);
   }
   
   difference() {
@@ -198,11 +198,11 @@ rotate([0,90,0]) {
       }
       
       translate([0,-11,10]) {
-        front_wing(1,90);
+        front_wing(1,0);
       }
       
       translate([0,105,303]) {
-        back_wing(1,90);
+        back_wing(1,0);
       }
     }
   }

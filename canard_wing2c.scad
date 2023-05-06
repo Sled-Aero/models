@@ -33,7 +33,7 @@ $fs=0.01;
 $fa=6;
 $fn=200;
 
-ANGLE = 90;
+ANGLE = 0;
 NACA = 2414;
 ATTACK = 6;
 BW = 125;
@@ -183,7 +183,7 @@ module prop(r,d=1) {
   translate([0,0,-1]) {
     translate([0,0,-4])
       cylinder(12,3,3);
-    cylinder(2,r,r);
+    //cylinder(2,r,r);
   }
   
   difference() {
@@ -208,9 +208,9 @@ module naca_pole(h,w=12) {
 rotate([0,90,0]) {
   translate([0,32,0]) {
     union() {
-//      rotate([0,270,0]) {
-//        quad_cabin(250,1.1,1,0.8);          
-//      }
+      rotate([0,270,0]) {
+        quad_cabin(250,1.1,1,0.8);          
+      }
       
       translate([0,-11,10]) {
         front_wing(1,ANGLE);

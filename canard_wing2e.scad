@@ -8,7 +8,7 @@ use <lib/BOSL/beziers.scad>
 use <lib/BOSL/paths.scad>
 use <lib/BOSL/math.scad>
 
-use <cabin8a.scad>
+use <cabin8b.scad>
 
 /* ----------------------------------------------------
 
@@ -33,13 +33,13 @@ $fs=0.01;
 $fa=6;
 $fn=200;
 
-ANGLE = 90;
+ANGLE = 0;
 NACA = 2414;
 ATTACK = 6;
 BW = 125;
 BL = 1800 / BW * 5;
 FW = BW-30;
-FL = 1200 / FW * 5;
+FL = 1200 / (FW-10) * 5;
 
 module rotate_about_pt(rot, x, y, z) {
   translate([x,y,z])
@@ -60,40 +60,52 @@ module fwing(w, orientation=0) {
   //             last dimension describes rotation of airfoil
   l = 25;
   X = [//L,  dx,      dy,  dz,    R
-      [54,   w*FW,    0,   l-5,   -ATTACK,  0],  
-      [54,   w*70,    0,   l-5,   -ATTACK,  0],
-      [54,   w*8,     0,   l-5,   -ATTACK,  0],
-      [54,   w*0.1,   0,   l-5, -ATTACK,  0]
+      [FL,   w*FW,    0,   l-5,   -ATTACK,  0],  
+      [FL,   w*70,    0,   l-5,   -ATTACK,  0],
+      [FL,   w*8,     0,   l-5,   -ATTACK,  0],
+      [FL,   w*0.1,   0,   l-5, -ATTACK,  0]
   ];
   Xs = nSpline(X, 150); // interpolate wing data
   
   difference() {
     sweep(gen_dat(Xs,orientation,100));
-      translate([-4,-11,136])
-        rotate([10,0,-5])
-          scale([1.6,3,12])
-            sphere(10);
+
+    translate([0,-14,130])
+      rotate([10,3,-18])
+        scale([1.6,3,12])
+          sphere(10);
+
+//    translate([0,3,30])
+//      rotate([0,-15,0])
+//        scale([1.6,3,4])
+//          sphere(6);
   }
 }
 
 module front_wing(l, rot=0) {
-  translate([0,3,15]) {
+  translate([0,2,35]) {
     rotate_about_pt([rot,0,0],0,0,0) {
-      rotate([0,90,0])
-        cylinder(FW,2.5,2.5);
-      translate([29,0.3,-25.3])  
-        fwing(l, 0);  
-      translate([BW,-2,-11])
+      translate([29,0,0])
+        rotate([0,90,0]) cylinder(FW,4,4);
+          
+      translate([29,0.3,-35])
+        rotate([0,0,0])
+          fwing(l, 0);
+          
+      translate([BW+1,-2,-22])
         prop(60,1);
     }
   
     mirror([1, 0, 0]) {  
       rotate_about_pt([rot,0,0],0,0,0) {
-        rotate([0,90,0])
-          cylinder(FW,2.5,2.5);
-        translate([29,0.3,-25.3])  
-          fwing(l, 0);  
-        translate([BW,-2,-11])
+        translate([29,0,0])
+          rotate([0,90,0]) cylinder(FW,4,4);
+
+        translate([29,0.3,-35])
+          rotate([0,0,0])
+            fwing(l, 0);
+          
+        translate([BW+1,-2,-22])
           prop(60,1);
       }
     }
@@ -119,12 +131,12 @@ module aframe(w, orientation=0) {
   //             next 3 dimensions describe xyz offsets
   //             last dimension describes rotation of airfoil
   l = 30;
-  X = [//L, dx,   dy,  dz,    R
-      [5,  -8,   4.5,   l+23,  0,  0],
-      [25,  -2,    0,   l+10,  0,  0],  
-      [20,  20,   -10,   l+3,  0,  0],
-      [12,  95,  -13,   l+35,  0,  0],
-      [15,   105,  -17,   l+54,  0,  0]
+  X = [//L,  dx,   dy,    dz,    R
+      [5,    -8,     2,   l+23,  0,  0],
+      [25,   -2,    -1,   l+8,  0,  0],  
+      [20,   20,   -10,    l+3,  0,  0],
+      [12,   95,   -13,   l+35,  0,  0],
+      [15,  105,   -17,   l+54,  0,  0]
   ];
   Xs = nSpline(X, 150); // interpolate wing data
   sweep(gen_dat(Xs,orientation,100));
@@ -132,7 +144,7 @@ module aframe(w, orientation=0) {
 
 module back_wing(l, rot) {
   rotate_about_pt([rot,0,0],0,-78,-13) {
-    translate([-BW,0,-2])
+    translate([-BW,0,-12])
       bwing(l, 0);
     
     translate([0,-96,-280])
@@ -142,7 +154,7 @@ module back_wing(l, rot) {
             aframe(1); 
       }
             
-    translate([BW,-2.5,11])
+    translate([BW+1,-2.5,1])
       prop(60,1);
   
     mirror([1, 0, 0]) {      
@@ -153,13 +165,14 @@ module back_wing(l, rot) {
               aframe(1); 
         }
       
-      translate([BW,-2.5,11])
+      translate([BW+1,-2.5,1])
         prop(60,1);
     }
   
-    translate([-19.5,-78,-13])
-      rotate([0,90,0])
-        cylinder(39,5,5);
+    translate([-18.5,-78,-13])
+      rotate([0,90,0]) {
+        cylinder(37,5,5);
+      }
   }
 }
 
@@ -208,9 +221,9 @@ module naca_pole(h,w=12) {
 rotate([0,90,0]) {
   translate([0,32,0]) {
     union() {
-//      rotate([0,270,0]) {
-//        quad_cabin(250,1.1,1,0.8);          
-//      }
+      rotate([0,270,0]) {
+        quad_cabin(250,1.1,1,0.8);          
+      }
       
       translate([0,-11,10]) {
         front_wing(1,ANGLE);
