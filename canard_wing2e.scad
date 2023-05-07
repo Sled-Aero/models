@@ -33,9 +33,9 @@ $fs=0.01;
 $fa=6;
 $fn=200;
 
-ANGLE = 0;
+ANGLE = 90;
 NACA = 2414;
-ATTACK = 6;
+ATTACK = 5;
 BW = 125;
 BL = 1800 / BW * 5;
 FW = BW-30;
@@ -92,7 +92,7 @@ module front_wing(l, rot=0) {
         rotate([0,0,0])
           fwing(l, 0);
           
-      translate([BW+1,-2,-22])
+      translate([BW+1,0,-21])
         prop(60,1);
     }
   
@@ -105,7 +105,7 @@ module front_wing(l, rot=0) {
           rotate([0,0,0])
             fwing(l, 0);
           
-        translate([BW+1,-2,-22])
+        translate([BW+1,0,-21])
           prop(60,1);
       }
     }
@@ -136,7 +136,7 @@ module aframe(w, orientation=0) {
       [25,   -2,    -1,   l+8,  0,  0],  
       [20,   20,   -10,    l+3,  0,  0],
       [12,   95,   -13,   l+35,  0,  0],
-      [15,  105,   -17,   l+54,  0,  0]
+      [15,  106,   -17,   l+56,  0,  0]
   ];
   Xs = nSpline(X, 150); // interpolate wing data
   sweep(gen_dat(Xs,orientation,100));
@@ -154,7 +154,7 @@ module back_wing(l, rot) {
             aframe(1); 
       }
             
-    translate([BW+1,-2.5,1])
+    translate([BW+1,0,2])
       prop(60,1);
   
     mirror([1, 0, 0]) {      
@@ -165,7 +165,7 @@ module back_wing(l, rot) {
               aframe(1); 
         }
       
-      translate([BW+1,-2.5,1])
+      translate([BW+1,0,2])
         prop(60,1);
     }
   
@@ -193,10 +193,10 @@ module drop(w,h,l) {
 }
 
 module prop(r,d=1) {  
-  translate([0,0,-1]) {
-    translate([0,0,-4])
-      cylinder(12,3,3);
-    cylinder(2,r,r);
+  translate([0,0,-2]) {
+    cylinder(12,3,3);
+    sphere(3);
+    cylinder(4,r,r);
   }
   
   difference() {
