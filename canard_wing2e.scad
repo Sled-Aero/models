@@ -33,7 +33,7 @@ $fs=0.01;
 $fa=6;
 $fn=200;
 
-ANGLE = 90;
+ANGLE = 0;
 NACA = 2414;
 ATTACK = 5;
 BW = 125;
@@ -217,18 +217,17 @@ module naca_pole(h,w=12) {
     polygon(points = airfoil_data(naca=NACA, L=w, N=100)); 
 }
 
-
-rotate([0,90,0]) {
+rotate([90,0,180]) {
   translate([0,32,0]) {
     union() {
       rotate([0,270,0]) {
-        quad_cabin(250,1.1,1,0.8);          
+        quad_cabin(250,1.1,1,0.8);
       }
-      
+
       translate([0,-11,10]) {
         front_wing(1,ANGLE);
       }
-      
+
       translate([0,105,303]) {
         back_wing(1,ANGLE);
       }

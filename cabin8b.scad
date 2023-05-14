@@ -178,9 +178,9 @@ module drop(w,h,l) {
 }
 
 module cut() {
-  translate([50,-81,0])
+  translate([45,-87,0])
     rotate([0,0,15])
-      scale([1.8,0.75,1])
+      scale([2,0.85,1])
         sphere(100);
 }
 
