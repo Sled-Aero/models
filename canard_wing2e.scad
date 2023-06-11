@@ -29,13 +29,20 @@ Center of prop lift:
 
 ------------------------------------------------------- */
 
-$fs=0.01;
+$fs=0.1;
 $fa=6;
 $fn=200;
 
+HAS_AXLES = false;
+HAS_HATCH = false;
+HAS_PROPS = false;
+
+REFINEMENT = 100;
 ANGLE = 0;
 NACA = 2414;
 ATTACK = 5;
+SCALE = 7;
+
 BW = 125;
 BL = 1800 / BW * 5;
 FW = BW-30;
@@ -68,44 +75,43 @@ module fwing(w, orientation=0) {
   Xs = nSpline(X, 150); // interpolate wing data
   
   difference() {
-    sweep(gen_dat(Xs,orientation,100));
+    sweep(gen_dat(Xs,orientation,REFINEMENT));
 
-    translate([0,-14,130])
-      rotate([10,3,-18])
-        scale([1.6,3,12])
-          sphere(10);
-
-//    translate([0,3,30])
-//      rotate([0,-15,0])
-//        scale([1.6,3,4])
-//          sphere(6);
+    if (ANGLE > 5) {
+      translate([0, - 14, 130])
+        rotate([10, 3, - 18])
+          scale([1.6, 3, 12])
+            sphere(10);
+    }
   }
 }
 
 module front_wing(l, rot=0) {
-  translate([0,2,35]) {
+  translate([0,7,30]) {
     rotate_about_pt([rot,0,0],0,0,0) {
-      translate([29,0,0])
-        rotate([0,90,0]) cylinder(FW,4,4);
+      if (HAS_AXLES)
+        translate([29,0,0])
+          rotate([0,90,0]) cylinder(FW,4,4);
           
-      translate([29,0.3,-35])
+      translate([29,0.3,-30])
         rotate([0,0,0])
           fwing(l, 0);
           
-      translate([BW+1,0,-21])
+      translate([BW+1,0,-16])
         prop(60,1);
     }
   
     mirror([1, 0, 0]) {  
       rotate_about_pt([rot,0,0],0,0,0) {
-        translate([29,0,0])
-          rotate([0,90,0]) cylinder(FW,4,4);
+        if (HAS_AXLES)
+          translate([29,0,0])
+            rotate([0,90,0]) cylinder(FW,4,4);
 
-        translate([29,0.3,-35])
+        translate([29,0.3,-30])
           rotate([0,0,0])
             fwing(l, 0);
           
-        translate([BW+1,0,-21])
+        translate([BW+1,0,-16])
           prop(60,1);
       }
     }
@@ -123,7 +129,7 @@ module bwing(w, orientation=0) {
       [BL,   0,    0,   l-5,  -ATTACK,  0]
   ];
   Xs = nSpline(X, 150); // interpolate wing data
-  sweep(gen_dat(Xs,orientation,100));
+  sweep(gen_dat(Xs,orientation,REFINEMENT));
 }
 
 module aframe(w, orientation=0) {
@@ -139,7 +145,7 @@ module aframe(w, orientation=0) {
       [15,  106,   -17,   l+56,  0,  0]
   ];
   Xs = nSpline(X, 150); // interpolate wing data
-  sweep(gen_dat(Xs,orientation,100));
+  sweep(gen_dat(Xs,orientation,REFINEMENT/2));
 }
 
 module back_wing(l, rot) {
@@ -153,7 +159,7 @@ module back_wing(l, rot) {
           rotate([90,-30,70])
             aframe(1); 
       }
-            
+
     translate([BW+1,0,2])
       prop(60,1);
   
@@ -164,22 +170,25 @@ module back_wing(l, rot) {
             rotate([90,-30,70])
               aframe(1); 
         }
-      
+
       translate([BW+1,0,2])
         prop(60,1);
     }
-  
-    translate([-18.5,-78,-13])
-      rotate([0,90,0]) {
-        cylinder(37,5,5);
-      }
+
+      // back axle
+    if (HAS_AXLES) {
+      translate([- 18.5, - 78, - 13])
+        rotate([0, 90, 0]) {
+          cylinder(37, 5, 5);
+        }
+    }
   }
 }
 
 module drop_slice() {
   rotate([0,0,90])
     difference() {
-      polygon(points = airfoil_data(30, N=300)); 
+      polygon(points = airfoil_data(30, N=REFINEMENT));
       square(100, 100); 
     }
 }
@@ -187,17 +196,18 @@ module drop_slice() {
 module drop(w,h,l) {
   scale([w,h,l]) 
     translate([0,0,0]) {
-      rotate_extrude(angle = 360, $fn=300)
+      rotate_extrude(angle = 360, $fn=REFINEMENT)
         drop_slice();
     }
 }
 
-module prop(r,d=1) {  
-  translate([0,0,-2]) {
-    cylinder(12,3,3);
-    sphere(3);
-    cylinder(4,r,r);
-  }
+module prop(r,d=1) {
+  if (HAS_PROPS)
+    translate([0,0,-2]) {
+      cylinder(12,3,3);
+      sphere(3);
+      cylinder(4, r, r);
+    }
   
   difference() {
     drop(0.3,0.7,1.2*d);
@@ -214,26 +224,27 @@ module prop(r,d=1) {
 
 module naca_pole(h,w=12) {
   linear_extrude(height=h, twist=0, scale=1)
-    polygon(points = airfoil_data(naca=NACA, L=w, N=100)); 
+    polygon(points = airfoil_data(naca=NACA, L=w, N=REFINEMENT));
 }
 
-rotate([90,0,180]) {
-  translate([0,32,0]) {
-    union() {
-      rotate([0,270,0]) {
-        quad_cabin(250,1.1,1,0.8);
-      }
+scale([1/SCALE,1/SCALE,1/SCALE])
+  rotate([90,0,180]) {
+    translate([0,32,0]) {
+      union() {
+        rotate([0,270,0]) {
+          quad_cabin(HAS_HATCH, 250, 1.1, 1, 0.8);
+        }
 
-      translate([0,-11,10]) {
-        front_wing(1,ANGLE);
-      }
+        translate([0,-11,7]) {
+          front_wing(1,ANGLE);
+        }
 
-      translate([0,105,303]) {
-        back_wing(1,ANGLE);
+        translate([0,105,303]) {
+          back_wing(1,ANGLE);
+        }
       }
     }
   }
-}
 
 
 
