@@ -9,10 +9,8 @@ use <lib/BOSL/constants.scad>
 use <lib/BOSL/beziers.scad>
 use <lib/BOSL/paths.scad>
 use <lib/BOSL/math.scad>
-
+use <lib/BOSL/shapes.scad>
 use <lib/BOSL/transforms.scad>
-
-use <lib/Round-Anything/polyround.scad>
 
 use <lib/dotSCAD/src/bezier_smooth.scad>
 use <lib/dotSCAD/src/bspline_curve.scad>
@@ -98,6 +96,12 @@ function round_corners(path, r, steps=100) = (
   polyRound(addZcoord(path,r), steps)
 );
 
+module rotate_about_pt(rot, pt) {
+  translate(pt)
+    rotate(rot)
+      translate(-pt)
+        children();
+}
 
 //path2=bzpoints(concat(b5,b2,b3,b4));
 
@@ -190,19 +194,25 @@ module shell(len) {
 }
 
 module body(has_hatch, len, has_axle=false) {
+
   difference() {
     shell(len);
 
-    translate([356,0,0])
-      rotate([0,0,0])
-        cube([30,30,40], true);
+    rotate_about_pt([0,0,7],[346, -1, 0]) {
+      translate([346, -1, 0]) {
+        difference() {
+          cube([12, 12, 40], true);
+        }
+      }
+    }
+
 
     if (has_hatch) {
       cut();
     }
 
     if (has_axle)
-      translate([52.6, 4.5, -50]) {
+      translate([48.1, 4.5, -50]) {
         cylinder(100, AXLE_RADIUS/1.1, AXLE_RADIUS/1.1); // magic number
 //        translate([-AXLE_RADIUS/1.1, -4.5, 0]) cube([AXLE_RADIUS/1.1 * 2, 4.5, 100]);
       }
@@ -272,12 +282,12 @@ module quad_cabin_shell(has_hatch, len, l=1,h=1,w=1) {
 
 module tail_holes() {
   rotate([0, 90, 0]) {
-    translate([-19, 30, 280])
+    translate([-19, 30, 285])
       rotate([0, 75, 14])
         scale([1.6, 1.6, 0.6])
           sphere(10);
 
-    translate([19, 30, 280])
+    translate([19, 30, 285])
       rotate([0, -75, -14])
         scale([1.6, 1.6, 0.6])
           sphere(10);
@@ -304,11 +314,11 @@ module quad_cabin(has_hatch, has_axle, len, l=1,h=1,w=1) {
 }
 
 module roof() {
-  translate([13, ROOF_OFFSET-FLOOR_OFFSET, -4.5])
+  translate([14, ROOF_OFFSET-FLOOR_OFFSET, -4.5])
     rotate([90,0,0]) {
       linear_extrude(height=ROOF_HEIGHT)
         difference() {
-          square([19, 9]);
+          rounding(r = 1) square([19, 9]);
 
           translate([0, -0.5, 0]) {
             for (i = [0 : 2]) {
@@ -521,8 +531,12 @@ module scaled_hatch_shell() {
 
 // main
 
-//scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
-//  quad_cabin(false, true, 250, 1.1, 1, 0.8);
+rotate([0,45,0])
+  scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
+  quad_cabin(false, true, 250, 1.1, 1, 0.8);
+
+translate([-3,-10,-37])
+cube([40,4,40]);
 
 //color("grey") {
 //  translate([- 0.01, 0.02, 0]) {
@@ -531,9 +545,10 @@ module scaled_hatch_shell() {
 //  };
 //};
 
-top_shell();
+//  top_shell();
+//
+//  bottom_shell();
 
-bottom_shell();
 
 //if (FLATTEN) {
 //  projection(cut = true)
@@ -542,30 +557,31 @@ bottom_shell();
 //} else {
 //  roof();
 //}
-//
-//translate([15, 0.1 - FLOOR_OFFSET, 0.1])
+
+//translate([16, 0.1 - FLOOR_OFFSET, 0.1])
 //  battery();
-//translate([15, 0.1 - FLOOR_OFFSET, -4.9])
+//translate([16, 0.1 - FLOOR_OFFSET, -4.9])
 //  battery();
 
-if (FLATTEN) {
-  projection(cut = true)
-    rotate([90, 0, 0]) translate([0, FLOOR_OFFSET+FLOOR_HEIGHT-0.01, 0])
-      floor();
-} else {
-  translate([0, -FLOOR_OFFSET-FLOOR_HEIGHT, 0])
-    rotate([ -90, 0, 0])
-      linear_extrude(height = FLOOR_HEIGHT)
-        projection(cut = true)
-          rotate([90, 0, 0]) translate([0, FLOOR_OFFSET + FLOOR_HEIGHT - 0.01, 0])
-            floor();
-}
+//if (FLATTEN) {
+//  translate([-2.1,0,0])
+//  projection(cut = true)
+//    rotate([90, 0, 0]) translate([0, FLOOR_OFFSET+FLOOR_HEIGHT-0.01, 0])
+//      floor();
+//} else {
+//  translate([0, -FLOOR_OFFSET-FLOOR_HEIGHT, 0])
+//    rotate([ -90, 0, 0])
+//      linear_extrude(height = FLOOR_HEIGHT)
+//        projection(cut = true)
+//          rotate([90, 0, 0]) translate([0, FLOOR_OFFSET + FLOOR_HEIGHT - 0.01, 0])
+//            floor();
+//}
 
-//translate([14.3, 0.1 - FLOOR_OFFSET, - 3.65])
+//translate([15.3, 0.1 - FLOOR_OFFSET, - 3.65])
 //  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);
-//translate([14.3, 0.1 - FLOOR_OFFSET, 3.65])
+//translate([15.3, 0.1 - FLOOR_OFFSET, 3.65])
 //  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);
-//translate([30.7, 0.1 - FLOOR_OFFSET, - 3.65])
+//translate([31.7, 0.1 - FLOOR_OFFSET, - 3.65])
 //  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);
-//translate([30.7, 0.1 - FLOOR_OFFSET, 3.65])
+//translate([31.7, 0.1 - FLOOR_OFFSET, 3.65])
 //  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);

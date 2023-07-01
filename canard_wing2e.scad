@@ -8,6 +8,8 @@ use <lib/BOSL/beziers.scad>
 use <lib/BOSL/paths.scad>
 use <lib/BOSL/math.scad>
 
+use <utils/morphology.scad>
+
 use <cabin8b.scad>
 
 /* ----------------------------------------------------
@@ -19,14 +21,11 @@ Centre of wing lift:
 
 30 + 310 * 3 / 5 = 216
 
-
-
 Center of prop lift:
 25 .... 365
 ^         ^
 
 25 + 340 / 2 = 195
-
 
 ---
 
@@ -36,16 +35,15 @@ Center of prop lift:
 4. All holes round
 5. Worry about feet once we have motors to mount them on
 
-
 ------------------------------------------------------- */
 
 $fs=0.1;
 $fa=6;
 $fn=100;
 
-HAS_AXLES = true;
+HAS_AXLES = false;
 HAS_WINGS = true;
-HAS_HATCH = false;
+HAS_HATCH = true;
 HAS_PROPS = false;
 FLATTEN = false;
 FLATTEN_TAIL = true;
@@ -55,8 +53,8 @@ ANGLE = 0;
 NACA = 2414;
 ATTACK = 5;
 SCALE = 7;
-FRONT_AXLE_R = 3.5;
-REAR_AXLE_R = 4.9; //1.225; //4.9
+FRONT_AXLE_R = 3.5; // 1.225;
+REAR_AXLE_R = 4.9; // 1.225;
 
 BW = 125;
 BL = 1800 / BW * 5;
@@ -185,6 +183,7 @@ module aframe_flat(w) {
   translate([106,0,0])
     rotate([270,-90,0])
       linear_extrude(height=2)
+        rounding(r = 1)
         projection(cut = true)
           rotate([0, 90, 0])
             translate([0,-106,0])
@@ -308,11 +307,11 @@ module scaled_front_wing(l, r=0) {
       rotate_about_pt([90, 0, 0], [0, 7, 30.5])
       difference() {
         front_wing(l, 0);
-        translate([0, 11, -7]) rotate([0, 270, 0]) {
+        translate([0, 11, -0.5]) rotate([0, 270, 0]) {
           quad_cabin(false, false, 250, 1.1, 1, 0.8);
         }
       }
-      translate([0, 11, -7]) rotate([0, 270, 0]) {
+      translate([0, 11, -0.5]) rotate([0, 270, 0]) {
         quad_cabin(false, false, 250, 1.1, 1, 0.8);
       }
     }
@@ -332,20 +331,20 @@ rotate([270, 180, 0]) {
 //rotate([0, 0, 0]) {
 
   rotate([0, 270, 0]) {
-    top_shell();
+//    top_shell();
 //    bottom_shell();
   }
 
   scale([1/SCALE,1/SCALE,1/SCALE]) {
-//    rotate([0, 270, 0]) {
-//      quad_cabin(HAS_HATCH, true, 250, 1.1, 1, 0.8);
-//    }
+    rotate([0, 270, 0]) {
+      quad_cabin(HAS_HATCH, true, 250, 1.1, 1, 0.8);
+    }
 
     if (FLATTEN) {
       translate([0,-1,-11.2])
         scaled_front_wing(1, ANGLE);
     } else {
-      translate([0, - 11.5, 6.5]) {
+      translate([0, -11.5, 1.5]) {
 //        nubbins(1);
 
         scaled_front_wing(1, ANGLE);
@@ -360,7 +359,7 @@ rotate([270, 180, 0]) {
 
     if (FLATTEN) {
       if (HAS_WINGS) {
-        translate([0, 6, 1.5])
+        translate([0, 6, 0])
           back_wing(1, ANGLE);
       } else {
         projection(cut = true)
@@ -370,7 +369,7 @@ rotate([270, 180, 0]) {
                   back_wing(1, ANGLE);
       }
     } else {
-      translate([0, 106, 290])
+      translate([0, 106, 295])
         back_wing(1, ANGLE);
     }
   }
