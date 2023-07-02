@@ -41,16 +41,17 @@ $fs=0.1;
 $fa=6;
 $fn=100;
 
-HAS_AXLES = false;
+HAS_AXLES = true;
 HAS_WINGS = true;
 HAS_HATCH = true;
 HAS_PROPS = true;
+HAS_BODY = true;
 FLATTEN = false;
 FLATTEN_TAIL = true;
-MEASUREMENTS = true;
+MEASUREMENTS = false;
 
 REFINEMENT = 100;
-ANGLE = 90;
+ANGLE = 0;
 NACA = 2414;
 ATTACK = 5;
 SCALE = 7;
@@ -242,13 +243,19 @@ module back_wing(l, rot) {
       // back axle hole
       translate([-25, -78, -13])
         rotate([0, 90, 0]) {
-          cylinder(50, REAR_AXLE_R, REAR_AXLE_R);
+          if (FLATTEN)
+            cylinder(50, 1, 1);
+          else
+            cylinder(50, REAR_AXLE_R, REAR_AXLE_R);
       }
 
       // wing spar hole
       translate([0, 0, 19])
         rotate([0, 90, 0]) {
-          translate([0, 0, -BW]) cylinder(BW * 2, FRONT_AXLE_R, FRONT_AXLE_R);
+          if (FLATTEN)
+            cylinder(50, 1, 1);
+          else
+            translate([0, 0, -BW]) cylinder(BW * 2, FRONT_AXLE_R, FRONT_AXLE_R);
         }
     }
 
@@ -343,9 +350,10 @@ rotate([270, 180, 0]) {
   }
 
   scale([1/SCALE,1/SCALE,1/SCALE]) {
-    rotate([0, 270, 0]) {
-      quad_cabin(HAS_HATCH, true, 250, 1.1, 1, 0.8);
-    }
+    if (HAS_BODY)
+      rotate([0, 270, 0]) {
+        quad_cabin(HAS_HATCH, true, 250, 1.1, 1, 0.8);
+      }
 
     if (FLATTEN) {
       translate([0,-1,-11.2])
@@ -368,12 +376,6 @@ rotate([270, 180, 0]) {
       if (HAS_WINGS) {
         translate([0, 6, 0])
           back_wing(1, ANGLE);
-      } else {
-        projection(cut = true)
-          translate([0,0,43])
-            rotate([0,90,0])
-                rotate([-20,0,20])
-                  back_wing(1, ANGLE);
       }
     } else {
       translate([0, 105.5, 295])
@@ -382,15 +384,14 @@ rotate([270, 180, 0]) {
   }
 }
 
-//if (FLATTEN) {
-//  projection(cut = true)
-//    rotate([90, 0, 0])
-//      scale([1/SCALE,1/SCALE,1/SCALE])
-//        translate([9,0,-32])
-//          aframe_flat(1);
-//}
-
-
+if (FLATTEN) {
+  projection(cut = true)
+    rotate([90, 0, 0])
+      scale([1/SCALE,1/SCALE,1/SCALE])
+        translate([30,-44,2])
+          rotate([-20,0,110])
+            back_wing(1, ANGLE);
+}
 
 // measures
 if (MEASUREMENTS) {

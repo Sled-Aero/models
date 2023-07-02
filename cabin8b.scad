@@ -41,7 +41,7 @@ $fa=3;
 $fn=100;
 
 
-FLATTEN = false;
+FLATTEN = true;
 HAS_HATCH = false;
 SCALE = 7;
 ROOF_OFFSET = 5.3;
@@ -531,12 +531,9 @@ module scaled_hatch_shell() {
 
 // main
 
-rotate([0,45,0])
-  scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
-  quad_cabin(false, true, 250, 1.1, 1, 0.8);
-
-translate([-3,-10,-37])
-cube([40,4,40]);
+//rotate([0,45,0])
+//  scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
+//    quad_cabin(false, true, 250, 1.1, 1, 0.8);
 
 //color("grey") {
 //  translate([- 0.01, 0.02, 0]) {
@@ -550,13 +547,13 @@ cube([40,4,40]);
 //  bottom_shell();
 
 
-//if (FLATTEN) {
-//  projection(cut = true)
-//    rotate([90, 0, 0]) translate([0, FLOOR_OFFSET-ROOF_OFFSET, 0])
-//      roof();
-//} else {
-//  roof();
-//}
+if (FLATTEN) {
+  projection(cut = true)
+    rotate([90, 0, 0]) translate([-14, FLOOR_OFFSET-ROOF_OFFSET, 0])
+      roof();
+} else {
+  roof();
+}
 
 //translate([16, 0.1 - FLOOR_OFFSET, 0.1])
 //  battery();
@@ -585,3 +582,7 @@ cube([40,4,40]);
 //  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);
 //translate([31.7, 0.1 - FLOOR_OFFSET, 3.65])
 //  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);
+
+// scanner base
+//translate([-3,-10,-37])
+//  cube([40,4,40]);
