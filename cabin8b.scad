@@ -548,6 +548,7 @@ module scaled_hatch_shell() {
 
 
 if (FLATTEN) {
+  linear_extrude(height = FLOOR_HEIGHT)
   projection(cut = true)
     rotate([90, 0, 0]) translate([-14, FLOOR_OFFSET-ROOF_OFFSET, 0])
       roof();
@@ -562,7 +563,8 @@ if (FLATTEN) {
 
 //if (FLATTEN) {
 //  translate([-2.1,0,0])
-//  projection(cut = true)
+//linear_extrude(height = FLOOR_HEIGHT)
+//    projection(cut = true)
 //    rotate([90, 0, 0]) translate([0, FLOOR_OFFSET+FLOOR_HEIGHT-0.01, 0])
 //      floor();
 //} else {

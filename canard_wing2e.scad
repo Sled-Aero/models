@@ -41,11 +41,12 @@ $fs=0.1;
 $fa=6;
 $fn=100;
 
-HAS_AXLES = true;
+HAS_AXLES = false;
 HAS_WINGS = true;
-HAS_HATCH = true;
-HAS_PROPS = true;
-HAS_BODY = true;
+HAS_HATCH = false;
+HAS_PROPS = false;
+HAS_BODY = false;
+HAS_TAIL = false;
 FLATTEN = false;
 FLATTEN_TAIL = true;
 MEASUREMENTS = false;
@@ -63,7 +64,7 @@ BW_AREA = 19200;
 FW_AREA = WING_AREA-BW_AREA;
 BW = 125;             // one wing
 CABIN_WIDTH = 45;     // one side
-CABIN_OVERLAP = 10;   // one side
+CABIN_OVERLAP = 12;   // one side
 FW = BW - CABIN_WIDTH;
 BL = BW_AREA / (BW * 2);
 FL = FW_AREA / (FW * 2);
@@ -199,40 +200,45 @@ module aframe_flat(w) {
                 aframe(w);
 }
 
+module tail() {
+  translate([0, - 96, - 280])
+    rotate([0, 270, 0])
+      translate([220, 30, 15])
+        rotate([90, -20, 70])
+          if (FLATTEN_TAIL) {
+            aframe_flat(1);
+          } else {
+            aframe(1);
+          }
+}
+
 module back_wing(l, rot) {
   rotate_about_pt([rot,0,0], [0,-78,-13]) {
     difference() {
       union() {
         if (HAS_WINGS)
-          translate([-BW, 0.5, -BL/4])
-            bwing(l, 0);
+          difference() {
+            translate([- BW, 0.5, - BL / 4])
+              bwing(l, 0);
 
-        translate([0, - 96, - 280])
-          rotate([0, 270, 0])
-            translate([220, 30, 15])
-              rotate([90, -20, 70])
-                if (FLATTEN_TAIL) {
-                  aframe_flat(1);
-                } else {
-                  aframe(1);
-                }
+            if (!HAS_TAIL) {
+              tail();
+              mirror([1, 0, 0]) {
+                tail();
+              }
+            }
+          }
+
+        if (HAS_TAIL)
+          tail();
 
         if (HAS_PROPS)
           translate([BW + 1, 0, -3])
             prop(60, 1);
 
-        mirror([1, 0, 0]) {
-          translate([0, - 96, - 280])
-            rotate([0, 270, 0]) {
-              translate([220, 30, 15]) {
-                rotate([90, - 20, 70])
-                  if (FLATTEN_TAIL) {
-                    aframe_flat(1);
-                  } else {
-                    aframe(1);
-                  }
-              }
-            }
+          mirror([1, 0, 0]) {
+            if (HAS_TAIL)
+              tail();
 
           if (HAS_PROPS)
             translate([BW + 1, 0, -3])
@@ -385,6 +391,7 @@ rotate([270, 180, 0]) {
 }
 
 if (FLATTEN) {
+  linear_extrude(height = 0.2)
   projection(cut = true)
     rotate([90, 0, 0])
       scale([1/SCALE,1/SCALE,1/SCALE])
