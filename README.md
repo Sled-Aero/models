@@ -10,4 +10,5 @@ git clone https://github.com/Lilly7084/openscad-toolkit.git
 git clone https://github.com/richfelker/parametric-loft.git
 git clone https://github.com/oysteinkrog/thing_libutils.git
 git clone https://github.com/Irev-Dev/Round-Anything.git
+git clone https://github.com/OskarLinde/scad-utils.git
 ```

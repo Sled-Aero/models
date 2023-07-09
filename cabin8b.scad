@@ -2,7 +2,7 @@ use <lib/ShortCuts.scad>  // see: http://www.thingiverse.com/thing:644830
 use <lib/Naca4.scad>
 // 
 use <lib/Round-Anything/polyround.scad>
-use <utils/morphology.scad>  // https://github.com/openscad/scad-utils
+use <lib/scad-utils/morphology.scad>  // https://github.com/openscad/scad-utils
 use <lib/thing_libutils/Naca_sweep.scad>
 
 use <lib/BOSL/constants.scad>
@@ -41,13 +41,16 @@ $fa=3;
 $fn=100;
 
 
-FLATTEN = true;
+FLATTEN = false;
 HAS_HATCH = false;
+TAB_MASK = false;
+
 SCALE = 7;
 ROOF_OFFSET = 5.3;
 ROOF_HEIGHT = 0.3;
-FLOOR_OFFSET = 1.2;
-FLOOR_HEIGHT = 0.5;
+FLOOR_RAISE = 0.10;
+FLOOR_OFFSET = 1.3;
+FLOOR_HEIGHT = 0.4;
 HOLE=0.3;
 AXLE_RADIUS=3.5;
 RESOLUTION=100;
@@ -194,7 +197,6 @@ module shell(len) {
 }
 
 module body(has_hatch, len, has_axle=false) {
-
   difference() {
     shell(len);
 
@@ -206,34 +208,39 @@ module body(has_hatch, len, has_axle=false) {
       }
     }
 
-
     if (has_hatch) {
       cut();
     }
-
-    if (has_axle)
-      translate([48.1, 4.5, -50]) {
-        cylinder(100, AXLE_RADIUS/1.1, AXLE_RADIUS/1.1); // magic number
-//        translate([-AXLE_RADIUS/1.1, -4.5, 0]) cube([AXLE_RADIUS/1.1 * 2, 4.5, 100]);
-      }
   }
 }
 
 module body_shell(has_hatch, len, has_axle=false) {
   difference() {
     union() {
-      body(has_hatch, len, has_axle);
+      difference() {
+        body(has_hatch, len, has_axle);
 
-//      rotate([180,0,0]) {
-//        translate([159,-31.2,20])
-//          fin(3);
-//        translate([159,-31.2,-20])
-//          fin(3);
-//      }
+        translate([2.8, -0.8, 0])
+          scale([0.97, 0.96, 0.95])
+            body(has_hatch, len);
+      }
+
+      translate([48.3, 4.5, 40.2])
+        rotate([0, -30, -30])
+          cylinder(2, 4.6, 4.6);
+
+      mirror([0, 0, 1]) {
+        translate([48.3, 4.5, 40.2])
+          rotate([0, -30, -30])
+            cylinder(2, 4.6, 4.6);
+      }
     }
-    translate([2.5,0,0])
-      scale([0.97,0.97,0.97])
-        body(has_hatch, len);
+
+    if (has_axle)
+      translate([48.1, 4.5, -50]) {
+        cylinder(100, AXLE_RADIUS / 1.1, AXLE_RADIUS / 1.1);
+        // magic numbers from scaling
+      }
   }
 }
 
@@ -400,31 +407,57 @@ module battery() {
   cube([15,4.8,4.8]);
 }
 
-module pole(len) {
+module pole(len, w=0.6) {
   difference() {
-    cylinder(len,0.6,0.6);
+    cylinder(len,w,w);
     cylinder(len,HOLE/2,HOLE/2);
   }
 }
 
 module tab(w,l) {
   difference() {
-    union() {
-      cylinder(w, 0.6, 0.6);
-      rotate([0, 0, -90]) translate([0, -0.6, 0]) cube([l, 1.2, 1]);
+    difference() {  // intersection or difference
+      union() {
+        cylinder(w, 0.6, 0.6);
+        rotate([0, 0, -90]) translate([0, -0.6, 0]) cube([l, 1.2, 1]);
+      }
+
+      // mask
+      if (TAB_MASK)
+        translate([0,0,0])
+          rotate([45,0,0])
+            translate([-0.7, -0.5, -0.5])
+              cube([1.4, 3, 3]);
     }
+
+    // holes
     cylinder(w,HOLE/2,HOLE/2);
+//    translate([0,-1.2,0])
+//      cylinder(w,HOLE/2,HOLE/2);
   }
 }
 
 module bottom_tabs(l) {
   translate([1.145, 0.6, 0]) rotate([0, 90, 0]) {
-    translate([HOLE / 2+1.5, 0, 0]) tab(1,l);
-    translate([-HOLE / 2-1.5, 0, 0]) tab(1,l);
+    translate([HOLE / 2+1.5, 0, 0]) {
+      tab(1, l);
+      translate([0.5,-1.8,0.5]) rotate([0,-90,0]) linear_extrude(1) polygon([[0,0],[0.6,0],[0,1]]);
+    }
+    translate([-HOLE / 2-1.5, 0, 0]) {
+      tab(1,l);
+      translate([0.5,-1.8,0.5]) rotate([0,-90,0]) linear_extrude(1) polygon([[0,0],[0.6,0],[0,1]]);
+    }
   }
+
   translate([43.87, 0.6, 0]) rotate([0, 90, 0]) {
-    translate([HOLE / 2+1, 0, 0]) tab(1,l);
-    translate([-HOLE / 2-1, 0, 0]) tab(1,l);
+    translate([HOLE / 2+1, 0, 0]) {
+      tab(1, l);
+      translate([-0.5,-1.8,0.5]) rotate([0,90,0]) linear_extrude(1) polygon([[0,0],[0.6,0],[0,1]]);
+    }
+    translate([-HOLE / 2-1, 0, 0]) {
+      tab(1, l);
+      translate([-0.5,-1.8,0.5]) rotate([0,90,0]) linear_extrude(1) polygon([[0,0],[0.6,0],[0,1]]);
+    }
   }
 }
 
@@ -436,13 +469,21 @@ module top_shell() {
         tail_holes();
       }
     hatch_hinge();
+
+    // hole for hinge
+    translate([36.82, 7, 0])
+      cube([2.7, 4, 1.5], true);
+
+    // mask away bottom shell
     translate([0, -10, -10])
       cube([55, 10, 20]);
   }
-  translate([37.2, 5.91, -1.5]) {
+
+  // hinge loops
+  translate([37.6, 5.891, -1.5]) {
     pole(0.75);
   }
-  translate([37.2, 5.91, 0.75]) {
+  translate([37.6, 5.891, 0.75]) {
     pole(0.75);
   }
 
@@ -479,12 +520,12 @@ module bottom_shell() {
 
       intersection() {
         union() {
-          translate([0, -FLOOR_OFFSET -FLOOR_HEIGHT, -7])
+          translate([0, FLOOR_RAISE -FLOOR_OFFSET -FLOOR_HEIGHT, -7])
             rotate([90, 0, 0]) {
               translate([37, 7, 0]) pole(3);
               translate([3, 7, 0]) pole(3);
-              translate([17.1, 12, 0]) pole(3);
-              translate([17.1, 2, 0]) pole(3);
+              translate([17.1, 12, 0]) pole(4);
+              translate([17.1, 2, 0]) pole(4);
             }
           bottom_tabs(3);
         }
@@ -503,21 +544,17 @@ module hatch_hinge() {
     scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
       quad_cabin_shell(false, 250, 1.1, 1, 0.8);
 
-    translate([37, 7, 0]) {
-      intersection() {
-        cube([3, 4, 1.5], true);
-        translate([-1.8, 0, 0]) rotate([90, 0, 0]) cylinder(3, 3, 3);
-      }
-    }
+    translate([36.5, 7, 0])
+      cube([2.7, 4, 1.5], true);
   }
-  translate([37.2, 5.91, -0.75]) {
+  translate([37.6, 5.891, -0.75]) {
     pole(1.5);
   }
 
-  translate([31.5, 7.9, -0.75]) {
-    rotate([0,0,-25]) cube([6,0.45,1.5]);
+  translate([31.9, 7.885, -0.75]) {
+    rotate([0,0,-25]) cube([6,0.4,1.5]);
     translate([2.5,-1.1,0])
-    rotate([0,0,-18]) cube([3,0.45,1.5]);
+      rotate([0,0,-18]) cube([3,0.45,1.5]);
   }
 }
 
@@ -530,53 +567,64 @@ module scaled_hatch_shell() {
 }
 
 // main
+scale([2,2,2]) {
 
-//rotate([0,45,0])
+  //rotate([0,45,0])
 //  scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
 //    quad_cabin(false, true, 250, 1.1, 1, 0.8);
 
-//color("grey") {
-//  translate([- 0.01, 0.02, 0]) {
-//    scaled_hatch_shell();
-//    translate([0, 0, 0]) hatch_hinge();
+//  color("grey") {
+//    translate([-0.01, 0.02, 0]) {
+////      scaled_hatch_shell();
+//      translate([0, 0, 0]) hatch_hinge();
+//    }
 //  };
-//};
 
-//  top_shell();
-//
-//  bottom_shell();
+// axle for hinge
+//  translate([37.1, 5.966, 0])
+//    cylinder(30, 0.1, 0.1, center=true);
 
+difference() {
+  union() {
+//    top_shell();
 
-if (FLATTEN) {
-  linear_extrude(height = FLOOR_HEIGHT)
-  projection(cut = true)
-    rotate([90, 0, 0]) translate([-14, FLOOR_OFFSET-ROOF_OFFSET, 0])
-      roof();
-} else {
-  roof();
+    bottom_shell();
+  }
+
+//  translate([-22.5, 0, 0])
+//    cube([50, 50, 50], true);
 }
 
-//translate([16, 0.1 - FLOOR_OFFSET, 0.1])
+  //if (FLATTEN) {
+//  linear_extrude(height = FLOOR_HEIGHT)
+//  projection(cut = true)
+//    rotate([90, 0, 0]) translate([-14, FLOOR_OFFSET-ROOF_OFFSET, 0])
+//      roof();
+//} else {
+//  roof();
+//}
+
+  //translate([16, 0.1 - FLOOR_OFFSET, 0.1])
 //  battery();
 //translate([16, 0.1 - FLOOR_OFFSET, -4.9])
 //  battery();
 
-//if (FLATTEN) {
-//  translate([-2.1,0,0])
-//linear_extrude(height = FLOOR_HEIGHT)
-//    projection(cut = true)
-//    rotate([90, 0, 0]) translate([0, FLOOR_OFFSET+FLOOR_HEIGHT-0.01, 0])
-//      floor();
-//} else {
-//  translate([0, -FLOOR_OFFSET-FLOOR_HEIGHT, 0])
-//    rotate([ -90, 0, 0])
-//      linear_extrude(height = FLOOR_HEIGHT)
-//        projection(cut = true)
-//          rotate([90, 0, 0]) translate([0, FLOOR_OFFSET + FLOOR_HEIGHT - 0.01, 0])
-//            floor();
-//}
+  if (FLATTEN) {
+    translate([-2.1,0,0])
+      linear_extrude(height = FLOOR_HEIGHT)
+        projection(cut = true)
+          rotate([90, 0, 0]) translate([0, FLOOR_OFFSET+FLOOR_HEIGHT-0.01, 0])
+            floor();
+  } else {
+    translate([0, FLOOR_RAISE-FLOOR_OFFSET-FLOOR_HEIGHT, 0])
+      rotate([ -90, 0, 0])
+        linear_extrude(height = FLOOR_HEIGHT)
+          projection(cut = true)
+            rotate([90, 0, 0]) translate([0, FLOOR_OFFSET + FLOOR_HEIGHT - 0.01, 0])
+              floor();
+  }
 
-//translate([15.3, 0.1 - FLOOR_OFFSET, - 3.65])
+  //translate([15.3, 0.1 - FLOOR_OFFSET, - 3.65])
 //  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);
 //translate([15.3, 0.1 - FLOOR_OFFSET, 3.65])
 //  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);
@@ -585,6 +633,7 @@ if (FLATTEN) {
 //translate([31.7, 0.1 - FLOOR_OFFSET, 3.65])
 //  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);
 
-// scanner base
+  // scanner base
 //translate([-3,-10,-37])
 //  cube([40,4,40]);
+}

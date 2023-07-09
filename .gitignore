@@ -1,4 +1,6 @@
 *.stl
 *.dxf
 *.dwg
+*.gcode
 lib
+output
