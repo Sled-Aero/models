@@ -8,7 +8,7 @@ use <lib/BOSL/beziers.scad>
 use <lib/BOSL/paths.scad>
 use <lib/BOSL/math.scad>
 
-use <utils/morphology.scad>
+use <lib/scad-utils/morphology.scad>
 
 use <cabin8b.scad>
 
@@ -41,11 +41,11 @@ $fs=0.1;
 $fa=6;
 $fn=100;
 
-HAS_AXLES = false;
-HAS_WINGS = true;
+HAS_AXLES = true;
+HAS_WINGS = false;
 HAS_HATCH = false;
 HAS_PROPS = false;
-HAS_BODY = false;
+HAS_BODY = true;
 HAS_TAIL = false;
 FLATTEN = false;
 FLATTEN_TAIL = true;
@@ -328,11 +328,11 @@ module scaled_front_wing(l, r=0) {
       difference() {
         front_wing(l, 0);
         translate([0, 11, -0.5]) rotate([0, 270, 0]) {
-          quad_cabin(false, false, 250, 1.1, 1, 0.8);
+          quad_cabin(false, 250, 1.1, 1, 0.8);
         }
       }
       translate([0, 11, -0.5]) rotate([0, 270, 0]) {
-        quad_cabin(false, false, 250, 1.1, 1, 0.8);
+        quad_cabin(false, 250, 1.1, 1, 0.8);
       }
     }
 }
@@ -341,7 +341,7 @@ module nubbins(l) {
   difference() {
     front_wing(l, 0);
     translate([0, 11, -7]) rotate([0, 270, 0]) {
-      quad_cabin(false, false, 250, 1.1, 1, 0.8);
+      quad_cabin(false, 250, 1.1, 1, 0.8);
     }
     scaled_front_wing(l, 0);
   }
@@ -358,7 +358,7 @@ rotate([270, 180, 0]) {
   scale([1/SCALE,1/SCALE,1/SCALE]) {
     if (HAS_BODY)
       rotate([0, 270, 0]) {
-        quad_cabin(HAS_HATCH, true, 250, 1.1, 1, 0.8);
+        quad_cabin(HAS_HATCH, 250, 1.1, 1, 0.8);
       }
 
     if (FLATTEN) {

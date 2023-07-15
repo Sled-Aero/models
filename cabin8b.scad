@@ -196,7 +196,7 @@ module shell(len) {
   }
 }
 
-module body(has_hatch, len, has_axle=false) {
+module body(has_hatch, len) {
   difference() {
     shell(len);
 
@@ -214,33 +214,23 @@ module body(has_hatch, len, has_axle=false) {
   }
 }
 
-module body_shell(has_hatch, len, has_axle=false) {
+module body_shell(has_hatch, len) {
   difference() {
-    union() {
-      difference() {
-        body(has_hatch, len, has_axle);
+    body(has_hatch, len);
 
-        translate([2.8, -0.8, 0])
-          scale([0.97, 0.96, 0.95])
-            body(has_hatch, len);
-      }
+    translate([2.8, -0.8, 0])
+      scale([0.97, 0.96, 0.95])
+        body(has_hatch, len);
+  }
 
-      translate([48.3, 4.5, 40.2])
-        rotate([0, -30, -30])
-          cylinder(2, 4.6, 4.6);
+  translate([48.3, 4.5, 40.2])
+    rotate([0, -30, -30])
+      cylinder(2, 4.6, 4.6);
 
-      mirror([0, 0, 1]) {
-        translate([48.3, 4.5, 40.2])
-          rotate([0, -30, -30])
-            cylinder(2, 4.6, 4.6);
-      }
-    }
-
-    if (has_axle)
-      translate([48.1, 4.5, -50]) {
-        cylinder(100, AXLE_RADIUS / 1.1, AXLE_RADIUS / 1.1);
-        // magic numbers from scaling
-      }
+  mirror([0, 0, 1]) {
+    translate([48.3, 4.5, 40.2])
+      rotate([0, -30, -30])
+        cylinder(2, 4.6, 4.6);
   }
 }
 
@@ -275,7 +265,7 @@ module quad_cabin_shell(has_hatch, len, l=1,h=1,w=1) {
   scale([l,h,w])
     translate([-19,0,0])
       rotate([180,0,0]) {
-        body_shell(true, len, true);
+        body_shell(true, len);
         if (has_hatch) {
           color("grey") {translate([0, -0.3, 0]) hatch_shell(len);}
         }
@@ -301,12 +291,12 @@ module tail_holes() {
   }
 }
 
-module quad_cabin(has_hatch, has_axle, len, l=1,h=1,w=1) {
+module quad_cabin(has_hatch, len, l=1,h=1,w=1) {
   scale([l, h, w])
     difference() {
       translate([-19, 0, 0])
         rotate([180, 0, 0]) {
-          body(has_hatch, len, has_axle);
+          body(has_hatch, len);
           if (has_hatch) {
             color("grey") {translate([0, - 0.3, 0]) hatch(len);}
           }
@@ -399,7 +389,7 @@ module floor() {
     scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
       translate([0.8, 0, 0])
         scale([0.99, 0.99, 0.99])
-          quad_cabin(false, false, 250, 1.1, 1, 0.8);
+          quad_cabin(false, 250, 1.1, 1, 0.8);
   }
 }
 
@@ -461,6 +451,25 @@ module bottom_tabs(l) {
   }
 }
 
+module bottom_lip() {
+  difference() {
+    scale([1, 1, 0.95]) {
+      intersection() {
+        scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
+          quad_cabin_shell(false, 250, 1.1, 1, 0.8);
+        translate([12, - 0.5, - 10])
+          cube([10, 1, 20]);
+      }
+    }
+    intersection() {
+      scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
+        quad_cabin_shell(false, 250, 1.1, 1, 0.8);
+      translate([12, 0, -10])
+        cube([10, 1, 20]);
+    }
+  }
+}
+
 module top_shell() {
   difference() {
     scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
@@ -489,6 +498,14 @@ module top_shell() {
 
   intersection() {
     union() {
+      // front lip
+      translate([0.75, 0.74, 0]) {
+        difference() {
+          translate([0,0,-4]) cylinder(8, 0.3, 0.3);
+          translate([0, -0.15, 0]) rotate([0, 90, 0]) cube([8, 0.3, 0.6], true);
+        }
+      }
+
       // front stays
       translate([2.145, 0.6, 0]) rotate([0, 90, 0]) {
         translate([3.5, 0, 0.5]) cube([3, 1, 1], true);
@@ -507,8 +524,9 @@ module top_shell() {
         translate([-2.5, 0, 0.5]) cube([2, 1, 1], true);
       }
     }
+
     scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
-      quad_cabin(false, false, 250, 1.1, 1, 0.8);
+      quad_cabin(false, 250, 1.1, 1, 0.8);
   }
 }
 
@@ -530,13 +548,16 @@ module bottom_shell() {
           bottom_tabs(3);
         }
         scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
-          quad_cabin(false, true, 250, 1.1, 1, 0.8);
+          quad_cabin(false, 250, 1.1, 1, 0.8);
       }
     }
     translate([0, 0, -10])
       cube([55, 10, 20]);
   }
+
   bottom_tabs(1);
+
+  bottom_lip();
 }
 
 module hatch_hinge() {
@@ -566,74 +587,87 @@ module scaled_hatch_shell() {
           hatch_shell(250);
 }
 
-// main
-scale([2,2,2]) {
-
-  //rotate([0,45,0])
-//  scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
-//    quad_cabin(false, true, 250, 1.1, 1, 0.8);
-
-//  color("grey") {
-//    translate([-0.01, 0.02, 0]) {
-////      scaled_hatch_shell();
-//      translate([0, 0, 0]) hatch_hinge();
-//    }
-//  };
-
-// axle for hinge
-//  translate([37.1, 5.966, 0])
-//    cylinder(30, 0.1, 0.1, center=true);
-
-difference() {
-  union() {
-//    top_shell();
-
-    bottom_shell();
+module hatch_latch() {
+  translate([1.21,1.36,0]) {
+    cube([0.3,2,2], true);
+    translate([-0.15,-0.72,-1]) cylinder(2,0.08,0.08);
   }
-
-//  translate([-22.5, 0, 0])
-//    cube([50, 50, 50], true);
 }
 
+// main
+scale([2,2,2]) {
+  difference() {
+    union() {
+//          scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
+//            quad_cabin(false, 250, 1.1, 1, 0.8);
+//          }
+
+      color("grey") {
+        translate([-0.01, 0.02, 0]) {
+          scaled_hatch_shell();
+          hatch_hinge();
+          hatch_latch();
+        }
+      };
+
+//        top_shell();
+
+//        bottom_shell();
+    }
+
+    //  axle
+    scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
+      translate([32, - 4.5, - 90]) {
+        cylinder(180, AXLE_RADIUS, AXLE_RADIUS);
+      }
+    }
+  }
+
+  // axle for hinge (debug)
+  //  translate([37.1, 5.966, 0])
+  //    cylinder(30, 0.1, 0.1, center=true);
+
   //if (FLATTEN) {
-//  linear_extrude(height = FLOOR_HEIGHT)
-//  projection(cut = true)
-//    rotate([90, 0, 0]) translate([-14, FLOOR_OFFSET-ROOF_OFFSET, 0])
-//      roof();
+  //  linear_extrude(height = FLOOR_HEIGHT)
+  //  projection(cut = true)
+  //    rotate([90, 0, 0]) translate([-14, FLOOR_OFFSET-ROOF_OFFSET, 0])
+  //      roof();
 //} else {
 //  roof();
 //}
 
   //translate([16, 0.1 - FLOOR_OFFSET, 0.1])
-//  battery();
-//translate([16, 0.1 - FLOOR_OFFSET, -4.9])
-//  battery();
+  //  battery();
+  //translate([16, 0.1 - FLOOR_OFFSET, -4.9])
+  //  battery();
 
-  if (FLATTEN) {
-    translate([-2.1,0,0])
-      linear_extrude(height = FLOOR_HEIGHT)
-        projection(cut = true)
-          rotate([90, 0, 0]) translate([0, FLOOR_OFFSET+FLOOR_HEIGHT-0.01, 0])
-            floor();
-  } else {
-    translate([0, FLOOR_RAISE-FLOOR_OFFSET-FLOOR_HEIGHT, 0])
-      rotate([ -90, 0, 0])
-        linear_extrude(height = FLOOR_HEIGHT)
-          projection(cut = true)
-            rotate([90, 0, 0]) translate([0, FLOOR_OFFSET + FLOOR_HEIGHT - 0.01, 0])
-              floor();
-  }
+//  if (FLATTEN) {
+//    translate([-2.1,0,0])
+//      linear_extrude(height = FLOOR_HEIGHT)
+//        projection(cut = true)
+//    rotate([90, 0, 0]) translate([0, FLOOR_OFFSET+FLOOR_HEIGHT-0.01, 0])
+//      floor();
+//  } else {
+//    translate([0, FLOOR_RAISE-FLOOR_OFFSET-FLOOR_HEIGHT, 0])
+//      rotate([ -90, 0, 0])
+//        linear_extrude(height = FLOOR_HEIGHT)
+//          projection(cut = true)
+//            rotate([90, 0, 0]) translate([0, FLOOR_OFFSET + FLOOR_HEIGHT - 0.01, 0])
+//              floor();
+//  }
 
-  //translate([15.3, 0.1 - FLOOR_OFFSET, - 3.65])
-//  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);
-//translate([15.3, 0.1 - FLOOR_OFFSET, 3.65])
-//  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);
-//translate([31.7, 0.1 - FLOOR_OFFSET, - 3.65])
+      //translate([15.3, 0.1 - FLOOR_OFFSET, - 3.65])
+      //  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);
+      //translate([15.3, 0.1 - FLOOR_OFFSET, 3.65])
+      //  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);
+      //translate([31.7, 0.1 - FLOOR_OFFSET, - 3.65])
 //  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);
 //translate([31.7, 0.1 - FLOOR_OFFSET, 3.65])
 //  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);
 
+}
+
   // scanner base
 //translate([-3,-10,-37])
 //  cube([40,4,40]);
-}
+
