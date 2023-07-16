@@ -41,11 +41,11 @@ $fs=0.1;
 $fa=6;
 $fn=100;
 
-HAS_AXLES = true;
-HAS_WINGS = false;
+HAS_AXLES = false;
+HAS_WINGS = true;
 HAS_HATCH = false;
 HAS_PROPS = false;
-HAS_BODY = true;
+HAS_BODY = false;
 HAS_TAIL = false;
 FLATTEN = false;
 FLATTEN_TAIL = true;

@@ -241,15 +241,6 @@ module hatch(len) {
   }
 }
 
-module hatch_shell(len) {
-  difference() {
-    hatch(len);
-    translate([1.5,3,0])
-      scale([0.993,0.99,0.97])
-        hatch(len);
-  }
-}
-
 fin_shape = [[0,0],[0,30],[160,30],[90,0]];
 
 module fin_section() {
@@ -261,13 +252,23 @@ module fin(h) {
     fin_section();
 }
 
-module quad_cabin_shell(has_hatch, len, l=1,h=1,w=1) {
+module quad_cabin_shell(has_hatch, len, l=1,h=1,w=1, hatch_only=false) {
   scale([l,h,w])
     translate([-19,0,0])
       rotate([180,0,0]) {
-        body_shell(true, len);
+        if (!hatch_only) {
+          body_shell(true, len);
+        }
+
         if (has_hatch) {
-          color("grey") {translate([0, -0.3, 0]) hatch_shell(len);}
+          color("grey") {
+            translate([0, 0, 0]) {
+              intersection() {
+                body_shell(false, len);
+                cut();
+              }
+            }
+          }
         }
       }
     
@@ -304,6 +305,7 @@ module quad_cabin(has_hatch, len, l=1,h=1,w=1) {
       scale([1 / l, 1 / h, 1 / w])
         tail_holes();
     }
+
 //  translate([140,-31.2,20])
 //    fin(3);
 //  translate([140,-31.2,-20])
@@ -427,49 +429,6 @@ module tab(w,l) {
   }
 }
 
-module bottom_tabs(l) {
-  translate([1.145, 0.6, 0]) rotate([0, 90, 0]) {
-    translate([HOLE / 2+1.5, 0, 0]) {
-      tab(1, l);
-      translate([0.5,-1.8,0.5]) rotate([0,-90,0]) linear_extrude(1) polygon([[0,0],[0.6,0],[0,1]]);
-    }
-    translate([-HOLE / 2-1.5, 0, 0]) {
-      tab(1,l);
-      translate([0.5,-1.8,0.5]) rotate([0,-90,0]) linear_extrude(1) polygon([[0,0],[0.6,0],[0,1]]);
-    }
-  }
-
-  translate([43.87, 0.6, 0]) rotate([0, 90, 0]) {
-    translate([HOLE / 2+1, 0, 0]) {
-      tab(1, l);
-      translate([-0.5,-1.8,0.5]) rotate([0,90,0]) linear_extrude(1) polygon([[0,0],[0.6,0],[0,1]]);
-    }
-    translate([-HOLE / 2-1, 0, 0]) {
-      tab(1, l);
-      translate([-0.5,-1.8,0.5]) rotate([0,90,0]) linear_extrude(1) polygon([[0,0],[0.6,0],[0,1]]);
-    }
-  }
-}
-
-module bottom_lip() {
-  difference() {
-    scale([1, 1, 0.95]) {
-      intersection() {
-        scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
-          quad_cabin_shell(false, 250, 1.1, 1, 0.8);
-        translate([12, - 0.5, - 10])
-          cube([10, 1, 20]);
-      }
-    }
-    intersection() {
-      scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
-        quad_cabin_shell(false, 250, 1.1, 1, 0.8);
-      translate([12, 0, -10])
-        cube([10, 1, 20]);
-    }
-  }
-}
-
 module top_shell() {
   difference() {
     scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
@@ -528,6 +487,27 @@ module top_shell() {
     scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
       quad_cabin(false, 250, 1.1, 1, 0.8);
   }
+
+  top_lip();
+}
+
+module top_lip() {
+  difference() {
+    union() {
+      scale([1, 1, 0.96]) {
+        intersection() {
+          scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
+            quad_cabin_shell(true, 250, 1.1, 1, 0.8);
+
+          translate([17, 1.5, - 10])
+            scale([5, 1, 1])
+              cylinder(20, 1, 1);
+        }
+      }
+    }
+
+    hatch_shell();
+  }
 }
 
 module bottom_shell() {
@@ -560,6 +540,57 @@ module bottom_shell() {
   bottom_lip();
 }
 
+module bottom_tabs(l) {
+  translate([1.145, 0.6, 0]) rotate([0, 90, 0]) {
+    translate([HOLE / 2+1.5, 0, 0]) {
+      tab(1, l);
+      translate([0.5,-1.8,0.5]) rotate([0,-90,0]) linear_extrude(1) polygon([[0,0],[0.6,0],[0,1]]);
+    }
+    translate([-HOLE / 2-1.5, 0, 0]) {
+      tab(1,l);
+      translate([0.5,-1.8,0.5]) rotate([0,-90,0]) linear_extrude(1) polygon([[0,0],[0.6,0],[0,1]]);
+    }
+  }
+
+  translate([43.87, 0.6, 0]) rotate([0, 90, 0]) {
+    translate([HOLE / 2+1, 0, 0]) {
+      tab(1, l);
+      translate([-0.5,-1.8,0.5]) rotate([0,90,0]) linear_extrude(1) polygon([[0,0],[0.6,0],[0,1]]);
+    }
+    translate([-HOLE / 2-1, 0, 0]) {
+      tab(1, l);
+      translate([-0.5,-1.8,0.5]) rotate([0,90,0]) linear_extrude(1) polygon([[0,0],[0.6,0],[0,1]]);
+    }
+  }
+}
+
+module bottom_lip() {
+  difference() {
+    scale([1, 1, 0.95]) {
+      intersection() {
+        scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
+          quad_cabin_shell(false, 250, 1.1, 1, 0.8);
+
+        translate([12, - 0.5, - 10])
+          cube([10, 1, 20]);
+      }
+    }
+
+    intersection() {
+      scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
+        quad_cabin_shell(false, 250, 1.1, 1, 0.8);
+
+      translate([12, 0, -10])
+        cube([10, 1, 20]);
+    }
+  }
+}
+
+module hatch_shell() {
+  scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
+    quad_cabin_shell(true, 250, 1.1, 1, 0.8, true);
+}
+
 module hatch_hinge() {
   intersection() {
     scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
@@ -579,14 +610,6 @@ module hatch_hinge() {
   }
 }
 
-module scaled_hatch_shell() {
-  scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
-    scale([1.1, 1, 0.8])
-      translate([-19, 0, 0])
-        rotate([180, 0, 0])
-          hatch_shell(250);
-}
-
 module hatch_latch() {
   translate([1.21,1.36,0]) {
     cube([0.3,2,2], true);
@@ -604,13 +627,13 @@ scale([2,2,2]) {
 
       color("grey") {
         translate([-0.01, 0.02, 0]) {
-          scaled_hatch_shell();
+          hatch_shell();
           hatch_hinge();
           hatch_latch();
         }
       };
 
-//        top_shell();
+        top_shell();
 
 //        bottom_shell();
     }
