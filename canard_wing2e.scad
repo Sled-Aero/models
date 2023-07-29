@@ -56,8 +56,10 @@ ANGLE = 0;
 NACA = 2414;
 ATTACK = 5;
 SCALE = 7;
-FRONT_AXLE_R = 3.5; // 1.225;
-REAR_AXLE_R = 4.9; // 1.225;
+SPAR_CORE_1_R = 0.2 * SCALE;
+SPAR_CORE_2_R = 0.4 * SCALE;
+FRONT_AXLE_R = 0.5 * SCALE; // 1.225;
+REAR_AXLE_R = 0.7 * SCALE; // 1.225;
 
 WING_AREA = 30000;
 BW_AREA = 19200;
@@ -116,8 +118,13 @@ module front_wing(l, rot=0) {
               prop(60, 1);
         }
 
-        translate([CABIN_WIDTH-CABIN_OVERLAP, 0, 0])
-          rotate([0, 90, 0]) cylinder(FW+CABIN_OVERLAP, FRONT_AXLE_R, FRONT_AXLE_R);
+        translate([CABIN_WIDTH-CABIN_OVERLAP, 0, 0]) {
+          rotate([0, 90, 0]) cylinder(FW + CABIN_OVERLAP, FRONT_AXLE_R, FRONT_AXLE_R);
+
+          translate([0, -1.5, FL/4]) rotate([0, 90, 0]) cylinder(FW + CABIN_OVERLAP, SPAR_CORE_2_R, SPAR_CORE_2_R);
+
+          translate([0, -3.25, FL/2]) rotate([0, 90, 0]) cylinder(FW + CABIN_OVERLAP, SPAR_CORE_1_R, SPAR_CORE_1_R);
+        }
       }
     }
   
@@ -134,8 +141,13 @@ module front_wing(l, rot=0) {
                 prop(60, 1);
           }
 
-          translate([CABIN_WIDTH-CABIN_OVERLAP, 0, 0])
-            rotate([0, 90, 0]) cylinder(FW+CABIN_OVERLAP, FRONT_AXLE_R, FRONT_AXLE_R);
+          translate([CABIN_WIDTH-CABIN_OVERLAP, 0, 0]) {
+            rotate([0, 90, 0]) cylinder(FW + CABIN_OVERLAP, FRONT_AXLE_R, FRONT_AXLE_R);
+
+            translate([0, -1.5, FL/4]) rotate([0, 90, 0]) cylinder(FW + CABIN_OVERLAP, SPAR_CORE_2_R, SPAR_CORE_2_R);
+
+            translate([0, -3.25, FL/2]) rotate([0, 90, 0]) cylinder(FW + CABIN_OVERLAP, SPAR_CORE_1_R, SPAR_CORE_1_R);
+          }
         }
       }
     }
@@ -218,7 +230,7 @@ module back_wing(l, rot) {
       union() {
         if (HAS_WINGS)
           difference() {
-            translate([- BW, 0.5, - BL / 4])
+            translate([-BW, 0.5, -BL/4])
               bwing(l, 0);
 
             if (!HAS_TAIL) {
@@ -255,13 +267,18 @@ module back_wing(l, rot) {
             cylinder(50, REAR_AXLE_R, REAR_AXLE_R);
       }
 
-      // wing spar hole
+      // wing spar holes
       translate([0, 0, 19])
         rotate([0, 90, 0]) {
-          if (FLATTEN)
+          if (FLATTEN) {
             cylinder(50, 1, 1);
-          else
-            translate([0, 0, -BW]) cylinder(BW * 2, FRONT_AXLE_R, FRONT_AXLE_R);
+          } else {
+              translate([0, 0, - BW]) cylinder(BW * 2, FRONT_AXLE_R, FRONT_AXLE_R);
+
+              translate([- BL / 4, - 1.5, - BW]) cylinder(BW * 2, SPAR_CORE_2_R, SPAR_CORE_2_R);
+
+              translate([- BL / 2, - 3.25, - BW]) cylinder(BW * 2, SPAR_CORE_1_R, SPAR_CORE_1_R);
+          }
         }
     }
 
@@ -347,70 +364,111 @@ module nubbins(l) {
   }
 }
 
-rotate([270, 180, 0]) {
-//rotate([0, 0, 0]) {
+module back_wing_notch(l) {
+  translate([0, -0, 2])
+    scale([0.29, 0.82, 0.9])
+      translate([- BW, 0.5, - BL / 4])
+        bwing(l, 0);
+}
 
-  rotate([0, 270, 0]) {
-//    top_shell();
-//    bottom_shell();
-  }
+module back_wing_mask() {
+  translate([-35, -10, -10]) cube([70, 35, 105]);
+}
 
-  scale([1/SCALE,1/SCALE,1/SCALE]) {
-    if (HAS_BODY)
-      rotate([0, 270, 0]) {
-        quad_cabin(HAS_HATCH, 250, 1.1, 1, 0.8);
-      }
+scale([10, 10, 10]) {
+  rotate([270, 180, 0]) {
+    intersection() { // intersection or difference
+      union() {
+        rotate([0, 270, 0]) {
+          //    top_shell();
+          //    bottom_shell();
+        }
 
-    if (FLATTEN) {
-      translate([0,-1,-11.2])
-        scaled_front_wing(1, ANGLE);
-    } else {
-      translate([0, -11.5, 1.5]) {
-//        nubbins(1);
+        scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
+          if (HAS_BODY)
+            rotate([0, 270, 0]) {
+              quad_cabin(HAS_HATCH, 250, 1.1, 1, 0.8);
+            }
 
-        scaled_front_wing(1, ANGLE);
+          if (FLATTEN) {
+            translate([0, - 1, - 11.2])
+              scaled_front_wing(1, ANGLE);
+          } else {
+            translate([0, - 11.5, 1.5]) {
+              //        nubbins(1);
 
-        if (HAS_AXLES) {
-          translate([-BW-20, 7, 30.5])
-            rotate([0, 90, 0])
-              cylinder((BW+20) * 2, FRONT_AXLE_R, FRONT_AXLE_R);
+              scaled_front_wing(1, ANGLE);
+
+              if (HAS_AXLES) {
+                translate([- BW - 20, 7, 30.5])
+                  rotate([0, 90, 0])
+                    cylinder((BW + 20) * 2, FRONT_AXLE_R, FRONT_AXLE_R);
+              }
+            }
+          }
+
+//          if (FLATTEN) {
+//            if (HAS_WINGS) {
+//              translate([0, 6, 0])
+//                back_wing(1, ANGLE);
+//            }
+//          } else {
+//            translate([0, 105.5, 295]) {
+//              difference() {
+//                back_wing(1, ANGLE);
+////                back_wing_notch(1);
+////                back_wing_mask();
+//              }
+//
+////              union() {
+////                intersection() {
+////                  back_wing(1, ANGLE);
+////                  back_wing_mask();
+////                }
+////                intersection() {
+////                  scale([1.2, 1, 1]) back_wing(1, ANGLE);
+////                  back_wing_notch(1);
+////                }
+////              }
+//            }
+//          }
         }
       }
-    }
 
-    if (FLATTEN) {
-      if (HAS_WINGS) {
-        translate([0, 6, 0])
-          back_wing(1, ANGLE);
+      union() {
+        // front wing masks
+        translate([0, -4, 0]) cube([20, 5, 12]);
+        translate([-20, -4, 0]) cube([20, 5, 12]);
+
+        // back wing masks
+//        translate([0, 13, 41]) cube([20, 5, 14]);
+//        translate([- 20, 13, 41]) cube([20, 5, 14]);
       }
-    } else {
-      translate([0, 105.5, 295])
-        back_wing(1, ANGLE);
     }
   }
-}
 
-if (FLATTEN) {
-  linear_extrude(height = 0.2)
-  projection(cut = true)
-    rotate([90, 0, 0])
-      scale([1/SCALE,1/SCALE,1/SCALE])
-        translate([30,-44,2])
-          rotate([-20,0,110])
-            back_wing(1, ANGLE);
-}
+  if (FLATTEN) {
+    linear_extrude(height = 0.2)
+      projection(cut = true)
+        rotate([90, 0, 0])
+          scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
+            translate([30, - 44, 2])
+              rotate([- 20, 0, 110])
+                back_wing(1, ANGLE);
+  }
 
-// measures
-if (MEASUREMENTS) {
-  frpt = 4.55;
-  uppt = 44.84;
-  dnpt = 51.42;
-  hoverpt = (dnpt - frpt) / 2 + frpt;
-  cruisept = (uppt - frpt) * (BW_AREA / (FW_AREA + BW_AREA)) + frpt;
+  // measures
+  if (MEASUREMENTS) {
+    frpt = 4.55;
+    uppt = 44.84;
+    dnpt = 51.42;
+    hoverpt = (dnpt - frpt) / 2 + frpt;
+    cruisept = (uppt - frpt) * (BW_AREA / (FW_AREA + BW_AREA)) + frpt;
 
-  color("red") {translate([- 20, uppt, 15.05]) sphere(0.3);}
-  color("red") {translate([- 20, frpt, - 0.65]) sphere(0.3);}
-  color("red") {translate([- 20, dnpt, - 0.65]) sphere(0.3);}
-  color("orange") {translate([- 20, hoverpt, - 0.65]) sphere(0.3);}
-  color("cyan") {translate([- 20, cruisept, - 0.65]) sphere(0.3);}
+    color("red") {translate([- 20, uppt, 15.05]) sphere(0.3);}
+    color("red") {translate([- 20, frpt, - 0.65]) sphere(0.3);}
+    color("red") {translate([- 20, dnpt, - 0.65]) sphere(0.3);}
+    color("orange") {translate([- 20, hoverpt, - 0.65]) sphere(0.3);}
+    color("cyan") {translate([- 20, cruisept, - 0.65]) sphere(0.3);}
+  }
 }

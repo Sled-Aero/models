@@ -218,8 +218,8 @@ module body_shell(has_hatch, len) {
   difference() {
     body(has_hatch, len);
 
-    translate([2.8, -0.8, 0])
-      scale([0.97, 0.96, 0.95])
+    translate([2, -0.5, 0])
+      scale([0.985, 0.97, 0.975])
         body(has_hatch, len);
   }
 
@@ -493,16 +493,26 @@ module top_shell() {
 
 module top_lip() {
   difference() {
-    union() {
-      scale([1, 1, 0.96]) {
+    intersection() {
+      scale([1, 1, 0.98]) {
         intersection() {
           scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
             quad_cabin_shell(true, 250, 1.1, 1, 0.8);
 
-          translate([17, 1.5, - 10])
+          translate([17, 1.1, -10])
             scale([5, 1, 1])
               cylinder(20, 1, 1);
         }
+      }
+
+      union() {
+        translate([17, 1.6, 6.98])
+          rotate([- 10, 0.3, 0])
+            cube([12, 2, 1], true);
+
+        translate([17, 1.6, - 6.98])
+          rotate([10, - 0.3, 0])
+            cube([12, 2, 1], true);
       }
     }
 
@@ -566,7 +576,7 @@ module bottom_tabs(l) {
 
 module bottom_lip() {
   difference() {
-    scale([1, 1, 0.95]) {
+    scale([1, 1, 0.975]) {
       intersection() {
         scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
           quad_cabin_shell(false, 250, 1.1, 1, 0.8);
@@ -618,24 +628,24 @@ module hatch_latch() {
 }
 
 // main
-scale([2,2,2]) {
-  difference() {
+scale([10,10,10]) {
+  difference() { // difference
     union() {
 //          scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
 //            quad_cabin(false, 250, 1.1, 1, 0.8);
 //          }
 
-      color("grey") {
-        translate([-0.01, 0.02, 0]) {
-          hatch_shell();
-          hatch_hinge();
-          hatch_latch();
-        }
-      };
+//      color("grey") {
+//        translate([-0.01, 0.02, 0]) {
+//          hatch_shell();
+//          hatch_hinge();
+//          hatch_latch();
+//        }
+//      };
 
-        top_shell();
+      top_shell();
 
-//        bottom_shell();
+//      bottom_shell();
     }
 
     //  axle
@@ -644,6 +654,10 @@ scale([2,2,2]) {
         cylinder(180, AXLE_RADIUS, AXLE_RADIUS);
       }
     }
+
+    // slice (debug)
+//    translate([15,-5,-10])
+//      cube([40,15,20]);
   }
 
   // axle for hinge (debug)
