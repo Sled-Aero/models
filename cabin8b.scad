@@ -613,10 +613,10 @@ module hatch_hinge() {
     pole(1.5);
   }
 
-  translate([31.9, 7.885, -0.75]) {
-    rotate([0,0,-25]) cube([6,0.4,1.5]);
-    translate([2.5,-1.1,0])
-      rotate([0,0,-18]) cube([3,0.45,1.5]);
+  translate([31.9, 8.1, -0.75]) {
+    rotate([0,0,-25.2]) //cube([5.9,0.3,1.5]);
+      linear_extrude(1.5)
+        polygon([[0,0],[6.1,0],[5.7,0.8],[0,0.2]]);
   }
 }
 
@@ -631,9 +631,9 @@ module hatch_latch() {
 scale([10,10,10]) {
   difference() { // difference
     union() {
-//          scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
-//            quad_cabin(false, 250, 1.1, 1, 0.8);
-//          }
+          scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
+            quad_cabin(false, 250, 1.1, 1, 0.8);
+          }
 
 //      color("grey") {
 //        translate([-0.01, 0.02, 0]) {
@@ -643,7 +643,7 @@ scale([10,10,10]) {
 //        }
 //      };
 
-      top_shell();
+//      top_shell();
 
 //      bottom_shell();
     }
@@ -660,6 +660,13 @@ scale([10,10,10]) {
 //      cube([40,15,20]);
   }
 
+  // axle connector (debug)
+//  scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
+//    translate([32, - 4.5, -35]) {
+//      cylinder(70, AXLE_RADIUS, AXLE_RADIUS);
+//    }
+//  }
+
   // axle for hinge (debug)
   //  translate([37.1, 5.966, 0])
   //    cylinder(30, 0.1, 0.1, center=true);
@@ -673,10 +680,10 @@ scale([10,10,10]) {
 //  roof();
 //}
 
-  //translate([16, 0.1 - FLOOR_OFFSET, 0.1])
-  //  battery();
-  //translate([16, 0.1 - FLOOR_OFFSET, -4.9])
-  //  battery();
+//  translate([16, 0.1 - FLOOR_OFFSET, 0.1])
+//    battery();
+//  translate([16, 0.1 - FLOOR_OFFSET, -4.9])
+//    battery();
 
 //  if (FLATTEN) {
 //    translate([-2.1,0,0])
