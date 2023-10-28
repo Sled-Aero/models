@@ -65,7 +65,7 @@ SCALE = 7;
 SPAR_CORE_1_R = 0.2 * SCALE;
 SPAR_CORE_2_R = 0.4 * SCALE;
 FRONT_AXLE_R = 0.525 * SCALE; // 1.225;
-REAR_AXLE_R = 0.7 * SCALE; // 1.225;
+REAR_AXLE_R = 0.4 * SCALE; // 1.225;
 
 WING_AREA = 30000;
 BW_AREA = 19200;
@@ -196,14 +196,19 @@ module aframe(w, orientation=0) {
 
 module aframe_flat(w) {
   translate([106,0,0])
-    rotate([270,-90,0])
-      linear_extrude(height=2)
-        rounding(r = 1)
-        projection(cut = true)
-          rotate([0, 90, 0])
-            translate([0,-106,0])
-              rotate([0, 0, 90])
-                aframe(w);
+    rotate([270,-90,0]) {
+      difference() {
+        linear_extrude(height = 2)
+          rounding(r = 1)
+          projection(cut = true)
+            rotate([0, 90, 0])
+              translate([0, - 106, 0])
+                rotate([0, 0, 90])
+                  aframe(w);
+        translate([48, -112, 1]) rotate([0, 0, 20]) cube([30, 20, 2], true);
+      }
+      translate([48.15, -102, 0]) cylinder(2,r=9.15);
+    }
 }
 
 module tail() {
@@ -277,10 +282,10 @@ module back_wing(l, rot) {
         }
       }
 
-      translate([-20.5, -78, -13])
-        rotate([0, 90, 0]) {
-          cylinder(41, REAR_AXLE_R, REAR_AXLE_R);
-        }
+//      translate([-20.5, -78, -13])
+//        rotate([0, 90, 0]) {
+//          cylinder(41, REAR_AXLE_R, REAR_AXLE_R);
+//        }
     }
   }
 }
@@ -555,10 +560,20 @@ scale([10, 10, 10]) {
             //    top_shell();
   //              bottom_shell();
   //              floor();
+            the_floor();
 
-              scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
-                quad_cabin(HAS_HATCH, 250, 1.1, 1, 0.8);
-              }
+            axle();
+
+            difference() {
+              translate([4.6, -0.6, 0]) clip_1();
+
+              axle();
+            }
+
+            translate([40.3,2.9,0]) servo();
+//              scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
+//                quad_cabin(HAS_HATCH, 250, 1.1, 1, 0.8);
+//              }
           }
 
         scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
