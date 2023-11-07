@@ -15,6 +15,7 @@ use <lib/BOSL/transforms.scad>
 use <lib/dotSCAD/src/bezier_smooth.scad>
 use <lib/dotSCAD/src/bspline_curve.scad>
 
+use <servos.scad>
 
 /*
 T(50, 30, 0)
@@ -352,7 +353,7 @@ module roof() {
     }
 }
 
-module floor() {
+module floory() {
   intersection() {
     translate([0, -FLOOR_OFFSET, -7]) {
       rotate([90, 0, 0]) {
@@ -381,17 +382,10 @@ module floor() {
 //              }
 
             // front axle holes
-            translate([3, 5, 0]) circle(0.2);
-//            translate([3.6, 4, 0]) {
-//              rounding(r = 0.5) square([2, 2]);
-//            }
-            translate([6.2, 5, 0]) circle(0.2);
-
-            translate([3, 9, 0]) circle(0.2);
-//            translate([3.6, 8, 0]) {
-//              rounding(r = 0.5) square([2, 2]);
-//            }
-            translate([6.2, 9, 0]) circle(0.2);
+            translate([3.1, 5, 0]) circle(0.2);
+            translate([6.1, 5, 0]) circle(0.2);
+            translate([3.1, 9, 0]) circle(0.2);
+            translate([6.1, 9, 0]) circle(0.2);
 
             // mounting holes
             translate([37, 7, 0]) circle(0.2);
@@ -648,8 +642,8 @@ module front_mount_1() {
     }
     translate([0, - 0.1, 0.7]) {
       cube([4.2, 0.05, 1.5], true);
-      translate([1.6, 5, 0]) rotate([90,0,0]) cylinder(10, r=0.2);
-      translate([-1.6, 5, 0]) rotate([90,0,0]) cylinder(10, r=0.2);
+      translate([1.5, 5, 0]) rotate([90,0,0]) cylinder(10, r=0.2);
+      translate([-1.5, 5, 0]) rotate([90,0,0]) cylinder(10, r=0.2);
     }
   }
 }
@@ -658,11 +652,11 @@ module front_mount_2() {
   difference() {
     union() {
       linear_extrude(1.4) semicircle(1, 0.1);
-      translate([0, - 0.3, 0.7]) cube([4.2, 0.55, 1.4], true);
+      translate([0, - 0.3, 0.7]) cube([4, 0.55, 1.4], true);
     }
-    translate([0, - 0.1, 0.7]) {
-      translate([1.6, 5, 0]) rotate([90,0,0]) cylinder(10, r=0.2);
-      translate([-1.6, 5, 0]) rotate([90,0,0]) cylinder(10, r=0.2);
+    translate([0, -0.1, 0.7]) {
+      translate([1.5, 5, 0]) rotate([90,0,0]) cylinder(10, r=0.2);
+      translate([-1.5, 5, 0]) rotate([90,0,0]) cylinder(10, r=0.2);
     }
     translate([-0.52,-1,0]) linear_extrude(1.4) square(0.98, 1);
   }
@@ -701,31 +695,41 @@ module axle() {
   }
 }
 
-module the_floor() {
+module floor_slice() {
   if (FLATTEN) {
     translate([ - 2.1, 0, 0])
       linear_extrude(height = FLOOR_HEIGHT)
         projection(cut = true)
           rotate([90, 0, 0]) translate([0, FLOOR_OFFSET + FLOOR_HEIGHT - 0.01, 0])
-            floor();
+            floory();
   } else {
     translate([0, FLOOR_RAISE - FLOOR_OFFSET - FLOOR_HEIGHT, 0])
       rotate([ - 90, 0, 0])
         linear_extrude(height = FLOOR_HEIGHT)
           projection(cut = true)
             rotate([90, 0, 0]) translate([0, FLOOR_OFFSET + FLOOR_HEIGHT - 0.01, 0])
-              floor();
+              floory();
   }
 }
 
 module servo() {
-  translate([0,1,-2.1]) cylinder(4.2, r=0.7);
-  translate([0,1,-4]) cylinder(8, r=0.3);
-  cube([2, 4, 4], true);
+  rotate_about_pt([0,0,-25], [0,1,0]) {
+    translate([0, 1, - 2.1]) cylinder(4.2, r = 0.7);
+    translate([0, 1, - 2.7]) cylinder(5.4, r = 0.4);
+    cube([2, 4, 4], true);
 
-  translate([0,-(2-0.65),2.11]) cube([2,2.7,0.2], true);
-  translate([0,-(2-0.65),-2.11]) cube([2,2.7,0.2], true);
-  translate([0,-2.6,0]) cube([2,0.2,4.42], true);
+    difference() {
+      union() {
+        translate([0, -(2 - 0.65), 2.11]) cube([2, 2.7, 0.2], true);
+        translate([0, -(2 - 0.65), - 2.11]) cube([2, 2.7, 0.2], true);
+        translate([0, - 2.6, 0]) cube([2, 0.2, 4.42], true);
+      }
+      translate([0.75, - 0.25, - 2.25]) cylinder(4.5, r = 0.1);
+      translate([ - 0.75, - 0.25, - 2.25]) cylinder(4.5, r = 0.1);
+      translate([0.75, - 1.75, - 2.25]) cylinder(4.5, r = 0.1);
+      translate([ - 0.75, - 1.75, - 2.25]) cylinder(4.5, r = 0.1);
+    }
+  }
 }
 
 // main
@@ -781,7 +785,7 @@ scale([10,10,10]) {
 //    battery();
 //  translate([16, 0.1 - FLOOR_OFFSET, -4.9])
 //    battery();
-  the_floor();
+  floor_slice();
 
       //translate([15.3, 0.1 - FLOOR_OFFSET, - 3.65])
       //  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);
