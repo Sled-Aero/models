@@ -293,9 +293,9 @@ module tail_holes() {
   }
 }
 
-module quad_cabin(has_hatch, len, l=1,h=1,w=1) {
-  scale([l, h, w])
-    difference() {
+module quad_cabin(has_hatch, len, l=1, h=1, w=1, holes=true) {
+  difference() {
+    scale([l, h, w])
       translate([-19, 0, 0])
         rotate([180, 0, 0]) {
           body(has_hatch, len);
@@ -303,14 +303,21 @@ module quad_cabin(has_hatch, len, l=1,h=1,w=1) {
             color("grey") {translate([0, - 0.3, 0]) hatch(len);}
           }
         }
-      scale([1 / l, 1 / h, 1 / w])
-        tail_holes();
+
+        if (holes)
+          tail_holes();
     }
 
 //  translate([140,-31.2,20])
 //    fin(3);
 //  translate([140,-31.2,-20])
 //    fin(3);   
+}
+
+module grasshopper_cabin() {
+  scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
+    quad_cabin(false, 250, 1.1, 1, 0.8, true);
+  }
 }
 
 module roof() {

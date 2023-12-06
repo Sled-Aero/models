@@ -456,9 +456,7 @@ scale([10, 10, 10]) {
       union() {
         if (HAS_BODY)
           rotate([0, 270, 0]) {
-            scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
-              quad_cabin(false, 250, 1.1, 1, 0.8);
-            }
+            grasshopper_cabin();
           }
         else if (HAS_SHELL)
           rotate([0, 270, 0]) {
@@ -491,7 +489,7 @@ scale([10, 10, 10]) {
 //            translate([40.3,2.9,0]) servo(true, 62.5);
 
             top_shell();
-                bottom_shell();
+            bottom_shell();
             floor_slice();
 
 //            axle();
