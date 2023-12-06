@@ -52,9 +52,11 @@ HAS_FRONT_LEFT_WING = true;
 HAS_FRONT_RIGHT_AXLE = true;
 HAS_FRONT_RIGHT_WING = true;
 HAS_HATCH = false;
-HAS_PROPS = true;
+HAS_PROPS = false;
 HAS_BLADES = false;
+HAS_SHELL = true;
 HAS_BODY = true;
+SUBTRACT_SHELL = false;
 FLATTEN = false;
 FLATTEN_TAIL = true;
 MEASUREMENTS = false;
@@ -209,7 +211,7 @@ module aframe_flat(w) {
                   aframe(w);
         translate([48, -112, 1]) rotate([0, 0, 20]) cube([30, 20, 2], true);
       }
-//      translate([48.15, -102, 0]) cylinder(2,r=9.15);
+      translate([48.15, -102, 0]) cylinder(2,r=9.15);
       translate([48.15, -102, 0]) scale([1,1,1]) cylinder(2,r=7);
     }
 }
@@ -217,9 +219,17 @@ module aframe_flat(w) {
 module tail() {
   translate([0, -96, -280])
     rotate([0, 270, 0]) {
-      translate([220, 28, 21])
-        rotate([21, 0, 0]) rotate([90, 0, 72])
-          if (FLATTEN_TAIL) {aframe_flat(1);} else {aframe(1);}
+      difference() {
+        translate([220, 28, 21])
+          rotate([21, 0, 0]) rotate([90, 0, 72])
+            if (FLATTEN_TAIL) {aframe_flat(1);} else {aframe(1);}
+
+        // this is close!
+        scale([7, 7, 7])
+          translate([38.175, 2.59, 2.09])
+            rotate([0, 0, 90])
+              servo_coupling(false);
+      }
 
 //      translate([220, 30, 15])
 //        rotate([90, -20, 70])
@@ -381,31 +391,122 @@ module back_wing_mask() {
   translate([-35, -10, -10]) cube([70, 35, 105]);
 }
 
+module servo_mount_tab(rot=0) {
+  rotate([90, rot, 0]) {
+    difference() {
+      union() {
+        translate([0, - 0.25, 0.5]) cube([1, 0.5, 1], true);
+        cylinder(1, r = 0.5);
+      }
+      cylinder(1, r = 0.15);
+    }
+  }
+}
+
+module servo_mount() {
+  // top shelf
+  translate([42.369,4.3,0])
+    rotate_about_pt([0,0,62.5-90], [0,1,0]) {
+      translate([0.75,0,0]) cube([2.5, 0.3, 4.01], true);
+      translate([-0.5,0.15,0]) rotate([90,90,0]) cylinder(0.3, r = 2);
+    }
+
+  // bottom shelf
+  translate([41.8,1.94,0])
+    rotate_about_pt([0,0,62.5-90], [0,1,0]) {
+      translate([1.25,0,0]) cube([2.5, 0.3, 4.01], true);
+      translate([0,0.15,0]) rotate([90,90,0]) cylinder(0.3, r = 2);
+    }
+
+  // sides
+  translate([38.5,-1.2,-2.3])
+    linear_extrude(0.3)
+      polygon(points=[[-1,0],[3,3.4],[3,6],[5.25,4.823],[5.25,0]]);
+  translate([38.5,-1.2,2])
+    linear_extrude(0.3)
+      polygon(points=[[-1,0],[3,3.4],[3,6],[5.25,4.823],[5.25,0]]);
+
+  // back
+  translate([43.6,2.07,0])
+    cube([0.3,3.1,4.4], true);
+
+  // base
+  translate([41.35,0,0])
+    cube([3.5,0.3,4.4], true);
+
+  // vertical supp0rt
+  translate([38.5,-1.2,-0.15])
+    linear_extrude(0.3)
+      polygon(points=[[4,1.3],[1.5,1.3],[1.5,4],[4,2.7],]);
+
+  // mount tabs
+  translate([42.5,-0.2,2.6])
+    servo_mount_tab();
+  translate([42.5,-0.2,-2.6])
+    servo_mount_tab(180);
+  translate([39.5,-0.2,2.6])
+    servo_mount_tab();
+  translate([39.5,-0.2,-2.6])
+    servo_mount_tab(180);
+}
+
 scale([10, 10, 10]) {
   rotate([270, 180, 0]) {
     intersection() { // intersection or difference
       union() {
         if (HAS_BODY)
           rotate([0, 270, 0]) {
-//                top_shell();
-  //              bottom_shell();
-  //              floor();
-            floor_slice();
-
-            axle();
-
+            scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
+              quad_cabin(false, 250, 1.1, 1, 0.8);
+            }
+          }
+        else if (HAS_SHELL)
+          rotate([0, 270, 0]) {
             difference() {
-              translate([4.6, -0.6, 0]) clip_2();
+              //              translate([42,4.3,0])
+//                rotate_about_pt([0,0,64.5-90], [0,1,0])
+//                  cube([5,0.6,3.6], true);
 
-              axle();
+              //              union() {
+//                top_shell();
+////                translate([42,4.3,0])
+////                  rotate_about_pt([0,0,64.5-90], [0,1,0])
+////                    cube([5,0.6,3.6], true);
+//              }
+
+              servo_mount();
+
+              translate([40.3, 2.9, 0])
+                servo(false, 62.5);
+
+              if (SUBTRACT_SHELL) {
+                top_shell();
+
+                translate([43, 4.48, 2.78]) rotate([45, 0, 62.5 + 90]) cube([5, 2, 2], true);
+                translate([43, 4.48, - 2.78]) rotate([45, 0, 62.5 + 90]) cube([5, 2, 2], true);
+              }
             }
 
-            translate([40.3,2.9,0])
-              servo();
+//            top_shell();
+//            translate([40.3,2.9,0]) servo(true, 62.5);
 
+            top_shell();
+                bottom_shell();
+            floor_slice();
+
+//            axle();
+//
+//            difference() {
+//              translate([4.6, -0.6, 0]) clip_2();
+//
+//              axle();
+//            }
+
+            translate([40.3,2.9,0])
+              servo(false, 62.5);
             translate([40.3,3.9,2.1])
-              scale([1/10,1/10,1/10])
-                servo_coupling();
+              servo_coupling(true);
+
 //              scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
 //                quad_cabin(HAS_HATCH, 250, 1.1, 1, 0.8);
 //              }
@@ -458,16 +559,16 @@ scale([10, 10, 10]) {
 //                back_wing_mask();
               }
 
-//              union() {
-//                intersection() {
-//                  back_wing(1, ANGLE);
-//                  back_wing_mask();
-//                }
-//                intersection() {
-//                  scale([1.2, 1, 1]) back_wing(1, ANGLE);
-//                  back_wing_notch(1);
-//                }
-//              }
+              union() {
+                intersection() {
+                  back_wing(1, ANGLE);
+                  back_wing_mask();
+                }
+                intersection() {
+                  scale([1.2, 1, 1]) back_wing(1, ANGLE);
+                  back_wing_notch(1);
+                }
+              }
             }
           }
         }

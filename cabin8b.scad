@@ -441,7 +441,7 @@ module top_shell() {
     scale([1 / SCALE, 1 / SCALE, 1 / SCALE])
       difference() {
         quad_cabin_shell(false, 250, 1.1, 1, 0.8);
-        tail_holes();
+//        tail_holes();
       }
     hatch_hinge();
 
@@ -712,26 +712,6 @@ module floor_slice() {
   }
 }
 
-module servo() {
-  rotate_about_pt([0,0,-25], [0,1,0]) {
-    translate([0, 1, - 2.1]) cylinder(4.2, r = 0.7);
-    translate([0, 1, - 2.7]) cylinder(5.4, r = 0.4);
-    cube([2, 4, 4], true);
-
-    difference() {
-      union() {
-        translate([0, -(2 - 0.65), 2.11]) cube([2, 2.7, 0.2], true);
-        translate([0, -(2 - 0.65), - 2.11]) cube([2, 2.7, 0.2], true);
-        translate([0, - 2.6, 0]) cube([2, 0.2, 4.42], true);
-      }
-      translate([0.75, - 0.25, - 2.25]) cylinder(4.5, r = 0.1);
-      translate([ - 0.75, - 0.25, - 2.25]) cylinder(4.5, r = 0.1);
-      translate([0.75, - 1.75, - 2.25]) cylinder(4.5, r = 0.1);
-      translate([ - 0.75, - 1.75, - 2.25]) cylinder(4.5, r = 0.1);
-    }
-  }
-}
-
 // main
 scale([10,10,10]) {
   difference() { // difference
@@ -752,9 +732,11 @@ scale([10,10,10]) {
 
 //      bottom_shell();
 
-        translate([4.6,-0.6,0]) clip_1();
+//        translate([4.6,-0.6,0]) clip_2();
 
-        translate([40.3,2.9,0]) servo();
+        translate([4.6,-0.6,0]) front_mount_2();
+
+//        translate([40.3,2.9,0]) servo();
     }
 
     //  axle
@@ -785,7 +767,7 @@ scale([10,10,10]) {
 //    battery();
 //  translate([16, 0.1 - FLOOR_OFFSET, -4.9])
 //    battery();
-  floor_slice();
+//  floor_slice();
 
       //translate([15.3, 0.1 - FLOOR_OFFSET, - 3.65])
       //  rotate([-90,0,0]) pole(ROOF_OFFSET-0.3);
