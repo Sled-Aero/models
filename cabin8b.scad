@@ -320,6 +320,12 @@ module grasshopper_cabin() {
   }
 }
 
+module dragonfly_cabin() {
+  scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
+    quad_cabin(false, 250, 1.1, 1, 0.8, false);
+  }
+}
+
 module roof() {
   translate([14, ROOF_OFFSET-FLOOR_OFFSET, -4.5])
     rotate([90,0,0]) {
