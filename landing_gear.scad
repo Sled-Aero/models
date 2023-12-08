@@ -82,8 +82,8 @@ module landing_foot(detailed=true) {
 }
 
 module 2810_motor() {
-    translate([0, 0, -13.1]) cylinder(37,1,1);
-    translate([0, 0, -13.1]) cylinder(14, 2.5, 2.5);
+//    translate([0, 0, -13.1]) cylinder(37,1,1);
+    translate([0, 0, -8]) cylinder(12, 2.5, 2.5);
     translate([0, 0, 0.9]) cylinder(2.9, 2.5, 16);
     translate([0, 0, 3.8]) cylinder(14.7, 33.3/2, 33.3/2);
     translate([0, 0, 18.5]) cylinder(2.9, 7, 8);

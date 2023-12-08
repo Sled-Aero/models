@@ -28,7 +28,7 @@ MEASUREMENTS = false;
 
 REFINEMENT = 100;
 ANGLE = 90;
-DIHEDRAL = 15;
+DIHEDRAL = 18;
 RAKE = 0;
 SPAN = 25;
 NACA = 2414;
@@ -40,16 +40,16 @@ FRONT_AXLE_R = 0.525 * SCALE; // 1.225;
 REAR_AXLE_R = 0.4 * SCALE; // 1.225;
 
 WING_AREA = 30000 / cos(DIHEDRAL);
-BW_AREA = WING_AREA / 2;
+BW_AREA = WING_AREA / 1.8;
 FW_AREA = WING_AREA-BW_AREA;
-BW = 125 * cos(DIHEDRAL);   // one wing
-FRONT_CABIN_WIDTH = 33;     // one side
-BACK_CABIN_WIDTH = 30;     // one side
-CABIN_WIDTH = 50;
-CABIN_OVERLAP=10;
-FW = BW;
-BL = BW_AREA / (BW * 2);
+WW = 150 * cos(DIHEDRAL);
+FRONT_CABIN_WIDTH = 33;
+BACK_CABIN_WIDTH = 26;
+CABIN_OVERLAP = 10;
+FW = WW - FRONT_CABIN_WIDTH;
+BW = WW - BACK_CABIN_WIDTH;
 FL = FW_AREA / (FW * 2);
+BL = BW_AREA / (BW * 2);
 
 module rotate_about_pt(rot, pt) {
   translate(pt)
@@ -64,14 +64,14 @@ function gen_dat(X, R=0, N=100) = [for(i=[0:len(X)-1])
     let(v3 = T_(x[1], x[2], x[3], R_(0, R+90, x[5], R_(0, 0, x[4], vec3D(v2)))) )   // rotate and translate
      v3];
 
-module wing(w, l=25, a=0) {
+module wing(w, l, a=0) {
   // wing data - first dimension selects airfoil
   //             next 3 dimensions describe xyz offsets
   //             last dimension describes rotation of airfoil
   X = [//L,  dx,      dy,  dz,    R
-      [FL,   w,    0,   l,   -ATTACK,  0],
-      [FL,   1,     0,   l,   -ATTACK,  0],
-      [FL,   0.1,   0,   l,   -ATTACK,  0]
+      [l,   w,    0,   SPAN,   -ATTACK,  0],
+      [l,   1,     0,   SPAN,   -ATTACK,  0],
+      [l,   0.1,   0,   SPAN,   -ATTACK,  0]
   ];
   Xs = nSpline(X, 150); // interpolate wing data
   difference() {
@@ -91,7 +91,7 @@ module front_wing(rot=0) {
       rotate_about_pt([90-rot,0,0], [0,0,0]) {
         rotate([0,0,-DIHEDRAL]) {
           translate([FRONT_CABIN_WIDTH, 0.3, -20.5-FL/4])
-            wing(FW,SPAN,-RAKE);
+            wing(FW,FL,-RAKE);
 
           translate([FRONT_CABIN_WIDTH, 0, 0]) {
             rotate([0, 90, 0]) cylinder(FW, FRONT_AXLE_R, FRONT_AXLE_R);
@@ -106,7 +106,7 @@ module front_wing(rot=0) {
         rotate_about_pt([90-rot,0,0], [0,0,0]) {
           rotate([0,0,-DIHEDRAL]) {
             translate([FRONT_CABIN_WIDTH, 0.3, -20.5-FL/4])
-              wing(FW,SPAN,-RAKE);
+              wing(FW,FL,-RAKE);
 
             translate([FRONT_CABIN_WIDTH, 0, 0]) {
               rotate([0, 90, 0]) cylinder(FW, FRONT_AXLE_R, FRONT_AXLE_R);
@@ -125,7 +125,7 @@ module back_wing(rot=0) {
       rotate_about_pt([90-rot,0,0], [0,0,0]) {
         rotate([0,0,DIHEDRAL]) {
           translate([BACK_CABIN_WIDTH, 0.3, -20.5-FL/4])
-            wing(BW,SPAN,RAKE);
+            wing(BW,BL,RAKE);
 
           translate([BACK_CABIN_WIDTH, 0, 0]) {
             rotate([0, 90, 0]) cylinder(FW, FRONT_AXLE_R, FRONT_AXLE_R);
@@ -140,7 +140,7 @@ module back_wing(rot=0) {
         rotate_about_pt([90-rot,0,0], [0,0,0]) {
           rotate([0,0,DIHEDRAL]) {
             translate([BACK_CABIN_WIDTH, 0.3, -20.5-FL/4])
-              wing(BW,SPAN,RAKE);
+              wing(BW,BL,RAKE);
 
             translate([BACK_CABIN_WIDTH, 0, 0]) {
               rotate([0, 90, 0]) cylinder(FW, FRONT_AXLE_R, FRONT_AXLE_R);
@@ -155,14 +155,14 @@ module back_wing(rot=0) {
 
 module prop2(r,offset) {
   if (HAS_BLADES)
-    translate([9,0,-22]) {
+    translate([6.25,0,-13]) {
       cylinder(12,3,3);
       sphere(3);
       cylinder(4, r, r);
     }
 
   scale([SCALE / 10, SCALE / 10, SCALE / 10])
-    translate([9,0,-16]) {
+    translate([9,0,-13]) {
       2810_motor();
       landing_gear(false);
     }
