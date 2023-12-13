@@ -110,23 +110,28 @@ module servo_gear(detailed=true) {
     }
 }
 
-module servo_coupling(detailed=true) {
+module servo_coupling(detailed=true, teeth=true) {
     scale([0.1,0.1,0.1]) {
         difference() {
             cylinder(h + 2, r = 4.75);
-            translate([0, 0, h + 1]) cylinder(1, 1.5, 3);
-            translate([0, 0, h]) cylinder(2, 1.5, 1.5);
-            servo_gear(detailed);
+            translate([0, 0, h+1]) cylinder(1, 1.5, 3);
+            if (teeth) {
+                servo_gear(detailed);
+            } else {
+                cylinder(h, r = outer_r);
+            }
+            translate([0, 0, h-1]) cylinder(4, 1.5, 1.5);
         }
         difference() {
             cylinder(10, r = 10);
             cylinder(h, r = 4.75);
             translate([0, 0, 9])
-                rotate([0, - 21, 0])
-                    cube([25, 25, 10], true);
+                rotate([0, -21, 0])
+                    cube([30, 25, 10], true);
             if (detailed) {
                 servo_coupling_holes(0.75);
             }
+            translate([0, 0, h-1]) cylinder(4, 1.5, 1.5);
         }
         if (!detailed) {
             servo_coupling_holes();
@@ -163,5 +168,5 @@ module servo_coupling_holes(r=1) {
 //servo(true);
 
 //
-
-  servo_coupling();
+scale([10,10,10])
+  servo_coupling(detailed=true, teeth=false);

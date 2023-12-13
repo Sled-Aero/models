@@ -224,15 +224,15 @@ module body_shell(has_hatch, len) {
         body(has_hatch, len);
   }
 
-  translate([48.3, 4.5, 40.2])
-    rotate([0, -30, -30])
-      cylinder(2, 4.6, 4.6);
-
-  mirror([0, 0, 1]) {
-    translate([48.3, 4.5, 40.2])
-      rotate([0, -30, -30])
-        cylinder(2, 4.6, 4.6);
-  }
+//  translate([48.3, 4.5, 40.2])
+//    rotate([0, -30, -30])
+//      cylinder(2, 4.6, 4.6);
+//
+//  mirror([0, 0, 1]) {
+//    translate([48.3, 4.5, 40.2])
+//      rotate([0, -30, -30])
+//        cylinder(2, 4.6, 4.6);
+//  }
 }
 
 module hatch(len) {
@@ -323,6 +323,12 @@ module grasshopper_cabin() {
 module dragonfly_cabin() {
   scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
     quad_cabin(false, 250, 1.1, 1, 0.8, false);
+  }
+}
+
+module dragonfly_shell() {
+  scale([1 / SCALE, 1 / SCALE, 1 / SCALE]) {
+    quad_cabin_shell(false, 250, 1.1, 1, 0.8);
   }
 }
 

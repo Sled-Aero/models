@@ -52,10 +52,10 @@ HAS_FRONT_LEFT_WING = true;
 HAS_FRONT_RIGHT_AXLE = true;
 HAS_FRONT_RIGHT_WING = true;
 HAS_HATCH = false;
-HAS_PROPS = false;
+HAS_PROPS = true;
 HAS_BLADES = false;
 HAS_SHELL = true;
-HAS_BODY = true;
+HAS_BODY = false;
 SUBTRACT_SHELL = false;
 FLATTEN = false;
 FLATTEN_TAIL = true;
@@ -488,8 +488,8 @@ scale([10, 10, 10]) {
 //            top_shell();
 //            translate([40.3,2.9,0]) servo(true, 62.5);
 
-            top_shell();
-            bottom_shell();
+//            top_shell();
+//            bottom_shell();
             floor_slice();
 
 //            axle();
